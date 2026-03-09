@@ -5,14 +5,14 @@ import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 const sora = Sora({
-  variable: "--font-display",
-  subsets: ["latin"],
+  variable: "--font-sora",
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600", "700"],
 })
 
 const dmSans = DM_Sans({
-  variable: "--font-sans",
-  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  subsets: ["latin", "latin-ext"],
   weight: ["300", "400", "500", "600", "700"],
 })
 
