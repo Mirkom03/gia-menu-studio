@@ -5,7 +5,7 @@ import { Plus, X, ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { CATEGORIES, createInitialDish } from '@/lib/menu-helpers'
+import { CHOOSEABLE_CATEGORIES, INCLUDED_CATEGORIES, createInitialDish } from '@/lib/menu-helpers'
 import type { DishInput } from '@/lib/menu-helpers'
 import type { MenuCategory } from '@/lib/types'
 
@@ -20,18 +20,14 @@ export function DishList({ dishes, onChange }: DishListProps) {
   function toggleExpand(id: string) {
     setExpandedIds((prev) => {
       const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }
 
   function addDish(category: MenuCategory) {
-    const newDish = createInitialDish(category)
-    onChange([...dishes, newDish])
+    onChange([...dishes, createInitialDish(category)])
   }
 
   function removeDish(id: string) {
@@ -44,43 +40,47 @@ export function DishList({ dishes, onChange }: DishListProps) {
   }
 
   function updateDish(id: string, field: keyof DishInput, value: string) {
-    onChange(
-      dishes.map((d) =>
-        d.id === id ? { ...d, [field]: value } : d
-      )
-    )
+    onChange(dishes.map((d) => (d.id === id ? { ...d, [field]: value } : d)))
+  }
+
+  // Ensure at least one dish exists for included categories
+  function ensureIncludedDish(category: MenuCategory) {
+    const existing = dishes.find((d) => d.category === category)
+    if (!existing) {
+      onChange([...dishes, createInitialDish(category)])
+    }
   }
 
   return (
     <div className="space-y-6">
-      {CATEGORIES.map((cat, catIdx) => {
+      {/* Chooseable sections: Primeros & Segundos (a elegir) */}
+      {CHOOSEABLE_CATEGORIES.map((cat, catIdx) => {
         const categoryDishes = dishes.filter((d) => d.category === cat.value)
-
         return (
           <div key={cat.value}>
             {catIdx > 0 && <Separator className="mb-4" />}
-            <h3 className="text-sm font-medium text-foreground mb-3">
-              {cat.label}
-            </h3>
+            <div className="flex items-baseline gap-2 mb-3">
+              <h3 className="text-sm font-medium">{cat.label}</h3>
+              <span className="text-xs text-muted-foreground">({cat.helpText})</span>
+            </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               {categoryDishes.map((dish) => (
                 <div key={dish.id} className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Input
                       value={dish.nameEs}
-                      onChange={(e) =>
-                        updateDish(dish.id, 'nameEs', e.target.value)
-                      }
-                      placeholder="Nombre del plato en espanol"
+                      onChange={(e) => updateDish(dish.id, 'nameEs', e.target.value)}
+                      placeholder={`Nombre del plato`}
                       className="flex-1"
                     />
                     <Button
                       variant="ghost"
-                      size="icon-sm"
+                      size="icon"
                       onClick={() => toggleExpand(dish.id)}
-                      className="shrink-0 text-xs text-muted-foreground"
+                      className="shrink-0 h-8 w-8 text-muted-foreground"
                       type="button"
+                      title="Traducciones EN/FR"
                     >
                       {expandedIds.has(dish.id) ? (
                         <ChevronUp className="h-3.5 w-3.5" />
@@ -90,30 +90,25 @@ export function DishList({ dishes, onChange }: DishListProps) {
                     </Button>
                     <Button
                       variant="ghost"
-                      size="icon-sm"
+                      size="icon"
                       onClick={() => removeDish(dish.id)}
-                      className="shrink-0 text-destructive hover:text-destructive"
+                      className="shrink-0 h-8 w-8 text-destructive hover:text-destructive"
                       type="button"
                     >
                       <X className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-
                   {expandedIds.has(dish.id) && (
-                    <div className="ml-0 space-y-2 pl-0">
+                    <div className="space-y-2 pl-0">
                       <Input
                         value={dish.nameEn}
-                        onChange={(e) =>
-                          updateDish(dish.id, 'nameEn', e.target.value)
-                        }
+                        onChange={(e) => updateDish(dish.id, 'nameEn', e.target.value)}
                         placeholder="English name (optional)"
                       />
                       <Input
                         value={dish.nameFr}
-                        onChange={(e) =>
-                          updateDish(dish.id, 'nameFr', e.target.value)
-                        }
-                        placeholder="Nom en francais (optional)"
+                        onChange={(e) => updateDish(dish.id, 'nameFr', e.target.value)}
+                        placeholder="Nom en français (optional)"
                       />
                     </div>
                   )}
@@ -129,11 +124,50 @@ export function DishList({ dishes, onChange }: DishListProps) {
               type="button"
             >
               <Plus className="mr-1 h-3.5 w-3.5" />
-              Agregar {cat.label.toLowerCase()}
+              Agregar plato
             </Button>
           </div>
         )
       })}
+
+      <Separator />
+
+      {/* Included sections: Postre & Bebida */}
+      <div>
+        <h3 className="text-sm font-medium mb-1">Incluido</h3>
+        <p className="text-xs text-muted-foreground mb-3">Postre y bebida incluidos en el precio</p>
+        <div className="space-y-3">
+          {INCLUDED_CATEGORIES.map((cat) => {
+            const categoryDishes = dishes.filter((d) => d.category === cat.value)
+            // Auto-create one entry if empty
+            if (categoryDishes.length === 0) {
+              // We'll show a placeholder that creates on focus
+              return (
+                <div key={cat.value}>
+                  <label className="text-xs text-muted-foreground mb-1 block">{cat.label}</label>
+                  <Input
+                    placeholder={`Ej: ${cat.value === 'dessert' ? 'Helado casero' : 'Agua, vino o refresco'}`}
+                    onFocus={() => ensureIncludedDish(cat.value)}
+                  />
+                </div>
+              )
+            }
+            return (
+              <div key={cat.value}>
+                <label className="text-xs text-muted-foreground mb-1 block">{cat.label}</label>
+                {categoryDishes.map((dish) => (
+                  <Input
+                    key={dish.id}
+                    value={dish.nameEs}
+                    onChange={(e) => updateDish(dish.id, 'nameEs', e.target.value)}
+                    placeholder={`Ej: ${cat.value === 'dessert' ? 'Helado casero' : 'Agua, vino o refresco'}`}
+                  />
+                ))}
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }

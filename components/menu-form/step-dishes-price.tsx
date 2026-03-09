@@ -1,10 +1,7 @@
 'use client'
 
-import { Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DishList } from '@/components/menu-form/dish-list'
-import { createInitialDish } from '@/lib/menu-helpers'
 import type { MenuFormData, DishInput } from '@/lib/menu-helpers'
 
 interface StepDishesPriceProps {
@@ -21,17 +18,9 @@ export function StepDishesPrice({ data, onChange }: StepDishesPriceProps) {
     onChange({ ...data, dishes })
   }
 
-  function seedDishes() {
-    const starter = createInitialDish('starter')
-    const main = createInitialDish('main')
-    onChange({ ...data, dishes: [starter, main] })
-  }
-
-  const hasDishes = data.dishes.length > 0
-
   return (
     <div className="space-y-6">
-      {/* Price input */}
+      {/* Price */}
       <div>
         <label className="text-sm font-medium mb-2 block">Precio (EUR)</label>
         <div className="relative">
@@ -51,26 +40,7 @@ export function StepDishesPrice({ data, onChange }: StepDishesPriceProps) {
       </div>
 
       {/* Dishes */}
-      {hasDishes ? (
-        <DishList dishes={data.dishes} onChange={handleDishesChange} />
-      ) : (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed p-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Agrega al menos un plato para continuar
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={seedDishes}
-              type="button"
-            >
-              <Plus className="mr-1 h-3.5 w-3.5" />
-              Agregar entrante y principal
-            </Button>
-          </div>
-        </div>
-      )}
+      <DishList dishes={data.dishes} onChange={handleDishesChange} />
     </div>
   )
 }

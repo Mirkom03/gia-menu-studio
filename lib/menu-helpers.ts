@@ -20,9 +20,22 @@ export interface MenuFormData {
   dishes: DishInput[]
 }
 
+// "Primeros" and "Segundos" are the chooseable sections (customer picks 1 from each)
+// "Postre" and "Bebida" are included with the menu (not a choice)
+export const CHOOSEABLE_CATEGORIES: { value: MenuCategory; label: string; helpText: string }[] = [
+  { value: 'starter', label: 'Primeros', helpText: 'A elegir' },
+  { value: 'main', label: 'Segundos', helpText: 'A elegir' },
+]
+
+export const INCLUDED_CATEGORIES: { value: MenuCategory; label: string }[] = [
+  { value: 'dessert', label: 'Postre' },
+  { value: 'drink', label: 'Bebida' },
+]
+
+// All categories for display purposes (review, detail pages)
 export const CATEGORIES: { value: MenuCategory; label: string }[] = [
-  { value: 'starter', label: 'Entrante' },
-  { value: 'main', label: 'Principal' },
+  { value: 'starter', label: 'Primeros' },
+  { value: 'main', label: 'Segundos' },
   { value: 'dessert', label: 'Postre' },
   { value: 'drink', label: 'Bebida' },
   { value: 'other', label: 'Otro' },

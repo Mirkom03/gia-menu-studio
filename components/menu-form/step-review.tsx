@@ -11,7 +11,7 @@ import {
   formatActiveDaysLabel,
 } from '@/lib/date-utils'
 import { getWeekEnd } from '@/lib/date-utils'
-import { CATEGORIES } from '@/lib/menu-helpers'
+import { CHOOSEABLE_CATEGORIES, INCLUDED_CATEGORIES, CATEGORIES } from '@/lib/menu-helpers'
 import type { MenuFormData } from '@/lib/menu-helpers'
 
 interface StepReviewProps {
