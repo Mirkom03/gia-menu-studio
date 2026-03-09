@@ -17,3 +17,17 @@ export const ASPECT_RATIOS = [
 ] as const
 
 export type AspectRatioId = typeof ASPECT_RATIOS[number]['id']
+
+export const DPI_OPTIONS = [
+  { value: 72, label: 'Estandar (72 DPI)', description: 'Para pantalla' },
+  { value: 150, label: 'Alta (150 DPI)', description: 'Para impresion basica' },
+  { value: 300, label: 'Maxima (300 DPI)', description: 'Para impresion profesional' },
+] as const
+
+export const PAPER_SIZES = [
+  { id: 'a4', label: 'A4', widthMm: 210, heightMm: 297 },
+  { id: 'a5', label: 'A5', widthMm: 148, heightMm: 210 },
+  { id: 'custom', label: 'Personalizado', widthMm: null, heightMm: null },
+] as const
+
+export type PaperSizeId = typeof PAPER_SIZES[number]['id']

@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { MenuCard } from '@/components/menu-card'
-import { getMenus } from '@/lib/actions/menu-actions'
+import { getFilteredMenus } from '@/lib/actions/menu-actions'
 
 export default async function HistoryPage() {
-  const menus = await getMenus()
+  const menus = await getFilteredMenus({})
 
   return (
     <div className="container max-w-5xl mx-auto px-4 py-6">
