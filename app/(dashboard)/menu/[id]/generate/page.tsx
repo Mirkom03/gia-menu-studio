@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getMenuById } from '@/lib/actions/menu-actions'
 import { getStyles } from '@/lib/actions/style-actions'
+import { getUserPreferences } from '@/lib/actions/preference-actions'
 import { GenerateFlow } from './generate-flow'
 import type { Language } from '@/lib/types'
 
@@ -16,9 +17,6 @@ export default async function GeneratePage({
   const { id } = await params
   const { lang } = await searchParams
 
-  const defaultLanguage: Language =
-    lang && VALID_LANGUAGES.has(lang as Language) ? (lang as Language) : 'es'
-
   let menu, items
   try {
     const result = await getMenuById(id)
@@ -28,7 +26,16 @@ export default async function GeneratePage({
     notFound()
   }
 
-  const styles = await getStyles()
+  const [styles, preferences] = await Promise.all([
+    getStyles(),
+    getUserPreferences(),
+  ])
+
+  // URL param takes priority over saved preferences
+  const defaultLanguage: Language =
+    lang && VALID_LANGUAGES.has(lang as Language)
+      ? (lang as Language)
+      : preferences.defaultLanguage
 
   return (
     <GenerateFlow
@@ -36,6 +43,7 @@ export default async function GeneratePage({
       items={items}
       styles={styles}
       defaultLanguage={defaultLanguage}
+      defaultPreferences={preferences}
     />
   )
 }

@@ -10,7 +10,7 @@ export interface UserPreferences {
   defaultDpi: number
 }
 
-export const DEFAULT_PREFERENCES: UserPreferences = {
+const DEFAULT_PREFERENCES: UserPreferences = {
   defaultLanguage: 'es',
   defaultAspectRatio: 'instagram',
   defaultDpi: 72,

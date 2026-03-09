@@ -11,6 +11,7 @@ import { AspectRatioPicker } from '@/components/aspect-ratio-picker'
 import { GenerateButton } from '@/components/generate-button'
 import { LanguagePicker } from '@/components/language-picker'
 import { formatRangeSpanish, formatDateSpanish } from '@/lib/date-utils'
+import type { UserPreferences } from '@/lib/actions/preference-actions'
 import type { Menu, MenuItem, MenuImage, Style, Language } from '@/lib/types'
 
 interface GenerateFlowProps {
@@ -18,12 +19,13 @@ interface GenerateFlowProps {
   items: MenuItem[]
   styles: Style[]
   defaultLanguage?: Language
+  defaultPreferences?: UserPreferences
 }
 
-export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es' }: GenerateFlowProps) {
+export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defaultPreferences }: GenerateFlowProps) {
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null)
   const [customStylePrompt, setCustomStylePrompt] = useState('')
-  const [selectedRatio, setSelectedRatio] = useState('instagram')
+  const [selectedRatio, setSelectedRatio] = useState(defaultPreferences?.defaultAspectRatio ?? 'instagram')
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(defaultLanguage)
   const [loading, setLoading] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<MenuImage | null>(null)
