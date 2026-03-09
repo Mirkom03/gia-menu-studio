@@ -1,13 +1,10 @@
-import { PlusCircle } from 'lucide-react'
+import { MenuForm } from '@/components/menu-form/menu-form'
 
 export default function CreatePage() {
   return (
-    <div className="flex flex-col items-center pt-12 lg:pt-20">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-        <PlusCircle className="h-8 w-8 text-muted-foreground" />
-      </div>
-      <h1 className="mt-4 text-2xl font-bold tracking-tight">Crear Menu</h1>
-      <p className="mt-2 text-muted-foreground">Proximamente</p>
+    <div className="container max-w-2xl mx-auto px-4 py-6">
+      <h1 className="text-2xl font-bold tracking-tight mb-6">Crear Menu</h1>
+      <MenuForm />
     </div>
   )
 }
