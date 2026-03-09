@@ -162,7 +162,7 @@ export default async function DashboardPage() {
                 <CalendarDays className="size-5" />
               </div>
               <div>
-                <CardTitle className="text-sm font-semibold">Crear Menú del Día</CardTitle>
+                <CardTitle className="text-sm font-semibold font-display">Crear Menú del Día</CardTitle>
                 <CardDescription className="text-xs mt-0.5">
                   Menú semanal con IA
                 </CardDescription>
@@ -176,7 +176,7 @@ export default async function DashboardPage() {
                 <PlusCircle className="size-5" />
               </div>
               <div>
-                <CardTitle className="text-sm font-semibold">Menú de Evento</CardTitle>
+                <CardTitle className="text-sm font-semibold font-display">Menú de Evento</CardTitle>
                 <CardDescription className="text-xs mt-0.5">
                   Menú especial para eventos
                 </CardDescription>

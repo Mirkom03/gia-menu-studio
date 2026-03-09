@@ -90,7 +90,7 @@ export function DishList({ dishes, onChange }: DishListProps) {
           <div key={cat.value}>
             {catIdx > 0 && <Separator className="mb-4" />}
             <div className="flex items-baseline gap-2 mb-3">
-              <h3 className="text-sm font-medium">{cat.label}</h3>
+              <h3 className="font-display text-sm font-medium">{cat.label}</h3>
               <span className="text-xs text-muted-foreground">({cat.helpText})</span>
             </div>
 
@@ -170,7 +170,7 @@ export function DishList({ dishes, onChange }: DishListProps) {
 
       {/* Included sections: Postre & Bebida */}
       <div>
-        <h3 className="text-sm font-medium mb-1">Incluido</h3>
+        <h3 className="font-display text-sm font-medium mb-1">Incluido</h3>
         <p className="text-xs text-muted-foreground mb-3">Postre y bebida incluidos en el precio</p>
         <div className="space-y-3">
           {INCLUDED_CATEGORIES.map((cat) => {

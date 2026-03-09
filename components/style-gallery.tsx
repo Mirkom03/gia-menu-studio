@@ -68,7 +68,7 @@ export function StyleGallery({ styles, selected, onSelect }: StyleGalleryProps) 
               )}
 
               <CardContent className="p-3 space-y-0.5">
-                <p className="font-medium text-sm">{style.name}</p>
+                <p className="font-display font-medium text-sm">{style.name}</p>
                 <p className="text-xs text-muted-foreground line-clamp-2">
                   {style.description}
                 </p>

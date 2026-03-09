@@ -133,7 +133,7 @@ export default async function MenuDetailPage({
             if (!categoryItems || categoryItems.length === 0) return null
             return (
               <div key={value}>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">{label}</h3>
+                <h3 className="font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">{label}</h3>
                 <ul className="space-y-2">
                   {categoryItems.map((item) => (
                     <li key={item.id} className="text-sm leading-relaxed">

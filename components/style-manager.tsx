@@ -48,7 +48,7 @@ function StyleCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-medium">{style.name}</h3>
+            <h3 className="font-display font-medium">{style.name}</h3>
             {!style.is_active && (
               <span className="rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Desactivado

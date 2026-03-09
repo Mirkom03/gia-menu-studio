@@ -172,7 +172,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
 
       {/* Style selection */}
       <section className="space-y-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Estilo</h2>
+        <h2 className="font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">Estilo</h2>
         <StyleGallery
           styles={styles}
           selected={selectedStyle}
@@ -184,7 +184,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
 
       {/* Aspect ratio selection */}
       <section className="space-y-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Formato</h2>
+        <h2 className="font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">Formato</h2>
         <AspectRatioPicker
           selected={selectedRatio}
           onSelect={setSelectedRatio}
@@ -195,7 +195,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
 
       {/* Language selection */}
       <section className="space-y-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Idioma</h2>
+        <h2 className="font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">Idioma</h2>
         <LanguagePicker
           selected={selectedLanguage}
           onSelect={setSelectedLanguage}
