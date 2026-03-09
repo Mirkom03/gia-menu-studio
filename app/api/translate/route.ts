@@ -12,8 +12,9 @@ const langNames: Record<string, string> = {
 }
 
 interface TranslateBody {
-  menuId: string
+  menuId?: string
   targetLanguage: 'en' | 'fr'
+  text?: string // Single-dish mode: translate one dish name
 }
 
 export async function POST(req: NextRequest) {
@@ -28,11 +29,30 @@ export async function POST(req: NextRequest) {
     }
 
     const body: TranslateBody = await req.json()
-    const { menuId, targetLanguage } = body
+    const { menuId, targetLanguage, text } = body
 
-    if (!menuId || !targetLanguage || !['en', 'fr'].includes(targetLanguage)) {
+    if (!targetLanguage || !['en', 'fr'].includes(targetLanguage)) {
       return NextResponse.json(
-        { error: 'Faltan campos: menuId, targetLanguage (en|fr)' },
+        { error: 'Falta targetLanguage (en|fr)' },
+        { status: 400 }
+      )
+    }
+
+    // Single-dish translation mode
+    if (text) {
+      const langName = langNames[targetLanguage] ?? targetLanguage
+      const prompt = `Translate this restaurant dish name from Spanish to ${langName}. Use proper culinary terminology, not literal translation. Return ONLY the translated name, nothing else.\n\nDish: ${text}`
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: prompt,
+      })
+      const translated = response.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? ''
+      return NextResponse.json({ translation: translated })
+    }
+
+    if (!menuId) {
+      return NextResponse.json(
+        { error: 'Falta menuId o text' },
         { status: 400 }
       )
     }

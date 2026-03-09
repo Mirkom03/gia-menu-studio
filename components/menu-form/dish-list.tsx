@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, X, ChevronDown, ChevronUp } from 'lucide-react'
+import { useState, useRef, useCallback } from 'react'
+import { Plus, X, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -16,6 +16,27 @@ interface DishListProps {
 
 export function DishList({ dishes, onChange }: DishListProps) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const [translatingIds, setTranslatingIds] = useState<Set<string>>(new Set())
+  const debounceTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
+
+  const autoTranslate = useCallback(async (dishId: string, nameEs: string) => {
+    if (!nameEs.trim()) return
+    setTranslatingIds(prev => new Set(prev).add(dishId))
+    try {
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: nameEs, targetLanguage: 'en' }),
+      })
+      const data = await res.json()
+      if (res.ok && data.translation) {
+        onChange(dishes.map(d => d.id === dishId ? { ...d, nameEn: data.translation } : d))
+      }
+    } catch { /* silent */ }
+    finally {
+      setTranslatingIds(prev => { const n = new Set(prev); n.delete(dishId); return n })
+    }
+  }, [dishes, onChange])
 
   function toggleExpand(id: string) {
     setExpandedIds((prev) => {
@@ -41,6 +62,15 @@ export function DishList({ dishes, onChange }: DishListProps) {
 
   function updateDish(id: string, field: keyof DishInput, value: string) {
     onChange(dishes.map((d) => (d.id === id ? { ...d, [field]: value } : d)))
+    // Auto-translate to English on Spanish name change
+    if (field === 'nameEs' && value.trim().length >= 3) {
+      const existing = debounceTimers.current.get(id)
+      if (existing) clearTimeout(existing)
+      debounceTimers.current.set(id, setTimeout(() => {
+        autoTranslate(id, value)
+        debounceTimers.current.delete(id)
+      }, 800))
+    }
   }
 
   // Ensure at least one dish exists for included categories
@@ -100,11 +130,17 @@ export function DishList({ dishes, onChange }: DishListProps) {
                   </div>
                   {expandedIds.has(dish.id) && (
                     <div className="space-y-2 pl-0">
-                      <Input
-                        value={dish.nameEn}
-                        onChange={(e) => updateDish(dish.id, 'nameEn', e.target.value)}
-                        placeholder="English name (optional)"
-                      />
+                      <div className="relative">
+                        <Input
+                          value={dish.nameEn}
+                          onChange={(e) => updateDish(dish.id, 'nameEn', e.target.value)}
+                          placeholder="English name (auto)"
+                          className={translatingIds.has(dish.id) ? 'pr-8' : ''}
+                        />
+                        {translatingIds.has(dish.id) && (
+                          <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                        )}
+                      </div>
                       <Input
                         value={dish.nameFr}
                         onChange={(e) => updateDish(dish.id, 'nameFr', e.target.value)}

@@ -28,8 +28,11 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
   const [selectedRatio, setSelectedRatio] = useState(defaultPreferences?.defaultAspectRatio ?? 'instagram')
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(defaultLanguage)
   const [loading, setLoading] = useState(false)
+  const [loadingEn, setLoadingEn] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<MenuImage | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [generatedImageEn, setGeneratedImageEn] = useState<MenuImage | null>(null)
+  const [imageUrlEn, setImageUrlEn] = useState<string | null>(null)
 
   const isWeekly = menu.type === 'weekly'
   const dateLabel = isWeekly
@@ -95,10 +98,57 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
 
       setGeneratedImage(data.image)
       setImageUrl(data.signedUrl)
+      // Reset EN image on new ES generation
+      setGeneratedImageEn(null)
+      setImageUrlEn(null)
     } catch {
       toast.error('Error de conexion al generar imagen')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleApproveAndGenerateEn() {
+    if (!selectedStyle) return
+    setLoadingEn(true)
+    try {
+      // Translate first
+      toast.info('Traduciendo platos al inglés...')
+      const translateRes = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ menuId: menu.id, targetLanguage: 'en' }),
+      })
+      if (!translateRes.ok) {
+        const err = await translateRes.json()
+        toast.error(err.error ?? 'Error al traducir')
+        return
+      }
+
+      toast.info('Generando imagen en inglés...')
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          menu_id: menu.id,
+          style_id: selectedStyle,
+          aspectRatio: selectedRatio,
+          customStylePrompt: customStylePrompt || undefined,
+          language: 'en',
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error ?? 'Error al generar imagen en inglés')
+        return
+      }
+      setGeneratedImageEn(data.image)
+      setImageUrlEn(data.signedUrl)
+      toast.success('Imagen en inglés generada')
+    } catch {
+      toast.error('Error de conexion')
+    } finally {
+      setLoadingEn(false)
     }
   }
 
@@ -166,14 +216,41 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
       {imageUrl && generatedImage && (
         <section className="space-y-4">
           <Separator />
-          <div className="flex justify-center">
-            <img
-              src={imageUrl}
-              alt="Menu generado"
-              className="max-w-full rounded-lg shadow-lg"
-            />
+          <div className={generatedImageEn && imageUrlEn ? 'grid grid-cols-1 sm:grid-cols-2 gap-4' : ''}>
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-center text-muted-foreground">Español</p>
+              <img
+                src={imageUrl}
+                alt="Menu en español"
+                className="w-full rounded-lg shadow-lg"
+              />
+            </div>
+            {generatedImageEn && imageUrlEn && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-center text-muted-foreground">English</p>
+                <img
+                  src={imageUrlEn}
+                  alt="Menu in English"
+                  className="w-full rounded-lg shadow-lg"
+                />
+              </div>
+            )}
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+            {!generatedImageEn && (
+              <Button
+                size="lg"
+                className="w-full lg:w-auto"
+                onClick={handleApproveAndGenerateEn}
+                disabled={loadingEn}
+              >
+                {loadingEn ? (
+                  <><span className="animate-spin mr-2">⏳</span>Generando en inglés...</>
+                ) : (
+                  'Aprobar y generar en inglés'
+                )}
+              </Button>
+            )}
             <GenerateButton
               onClick={handleGenerate}
               loading={loading}
