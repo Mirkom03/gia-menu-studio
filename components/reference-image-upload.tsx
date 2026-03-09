@@ -5,8 +5,6 @@ import { ImagePlus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 
-const MAX_SIZE_MB = 5
-const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 interface ReferenceImageUploadProps {
@@ -22,10 +20,6 @@ export function ReferenceImageUpload({ value, onChange }: ReferenceImageUploadPr
     (file: File) => {
       if (!ACCEPTED_TYPES.includes(file.type)) {
         toast.error('Formato no soportado. Usa JPG, PNG o WebP.')
-        return
-      }
-      if (file.size > MAX_SIZE_BYTES) {
-        toast.error(`La imagen supera el limite de ${MAX_SIZE_MB}MB.`)
         return
       }
 
