@@ -1,0 +1,203 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { generateMenuImage } from '@/lib/gemini'
+import { buildMenuPrompt } from '@/lib/prompts'
+import { createThumbnail, uploadImage } from '@/lib/image-utils'
+import { ASPECT_RATIOS } from '@/lib/constants'
+import { formatRangeSpanish, formatDateSpanish } from '@/lib/date-utils'
+
+export const maxDuration = 60
+
+interface GenerateBody {
+  menu_id: string
+  style_id: string
+  aspectRatio: string
+  customStylePrompt?: string
+  customWidth?: number
+  customHeight?: number
+}
+
+// Supported Gemini aspect ratios for finding closest match
+const GEMINI_RATIOS = [
+  { ratio: '1:1', value: 1 },
+  { ratio: '2:3', value: 2 / 3 },
+  { ratio: '3:2', value: 3 / 2 },
+  { ratio: '3:4', value: 3 / 4 },
+  { ratio: '4:3', value: 4 / 3 },
+  { ratio: '4:5', value: 4 / 5 },
+  { ratio: '5:4', value: 5 / 4 },
+  { ratio: '9:16', value: 9 / 16 },
+  { ratio: '16:9', value: 16 / 9 },
+]
+
+function findClosestGeminiRatio(width: number, height: number): string {
+  const target = width / height
+  let closest = GEMINI_RATIOS[0]
+  let minDiff = Math.abs(target - closest.value)
+  for (const r of GEMINI_RATIOS) {
+    const diff = Math.abs(target - r.value)
+    if (diff < minDiff) {
+      minDiff = diff
+      closest = r
+    }
+  }
+  return closest.ratio
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
+
+    const body: GenerateBody = await req.json()
+    const { menu_id, style_id, aspectRatio, customStylePrompt, customWidth, customHeight } = body
+
+    if (!menu_id || !style_id || !aspectRatio) {
+      return NextResponse.json(
+        { error: 'Faltan campos obligatorios: menu_id, style_id, aspectRatio' },
+        { status: 400 }
+      )
+    }
+
+    // Fetch menu
+    const { data: menu, error: menuError } = await supabase
+      .from('menus')
+      .select('*')
+      .eq('id', menu_id)
+      .single()
+
+    if (menuError || !menu) {
+      return NextResponse.json({ error: 'Menu no encontrado' }, { status: 404 })
+    }
+
+    // Fetch menu items
+    const { data: items, error: itemsError } = await supabase
+      .from('menu_items')
+      .select('*')
+      .eq('menu_id', menu_id)
+      .order('sort_order')
+
+    if (itemsError) {
+      return NextResponse.json({ error: 'Error al cargar platos' }, { status: 500 })
+    }
+
+    // Fetch style
+    const { data: style, error: styleError } = await supabase
+      .from('styles')
+      .select('*')
+      .eq('id', style_id)
+      .single()
+
+    if (styleError || !style) {
+      return NextResponse.json({ error: 'Estilo no encontrado' }, { status: 404 })
+    }
+
+    // Determine style prompt
+    const stylePrompt =
+      style.name === 'Personalizado'
+        ? customStylePrompt ?? ''
+        : style.prompt_template
+
+    // Look up aspect ratio
+    const arConfig = ASPECT_RATIOS.find((ar) => ar.id === aspectRatio)
+    let ratioString: string
+    let imageWidth: number | null
+    let imageHeight: number | null
+
+    if (aspectRatio === 'custom' && customWidth && customHeight) {
+      ratioString = findClosestGeminiRatio(customWidth, customHeight)
+      imageWidth = customWidth
+      imageHeight = customHeight
+    } else if (arConfig && arConfig.ratio) {
+      ratioString = arConfig.ratio
+      imageWidth = arConfig.width
+      imageHeight = arConfig.height
+    } else {
+      ratioString = '3:4'
+      imageWidth = null
+      imageHeight = null
+    }
+
+    // Build date range string
+    const dateRange =
+      menu.type === 'weekly' && menu.week_end
+        ? formatRangeSpanish(menu.week_start, menu.week_end)
+        : formatDateSpanish(menu.week_start)
+
+    // Build prompt
+    const prompt = buildMenuPrompt({
+      stylePrompt,
+      dishes: (items ?? []).map((i: { category: string; name_es: string }) => ({
+        category: i.category,
+        name: i.name_es,
+      })),
+      price: menu.price?.toString() ?? '',
+      dateRange,
+      aspectRatio: ratioString,
+      menuType: menu.type,
+      eventTitle: menu.title ?? undefined,
+    })
+
+    // Generate image
+    const imageBuffer = await generateMenuImage(prompt, ratioString)
+
+    // Upload full image
+    const timestamp = Date.now()
+    const imagePath = `menus/${menu_id}/${timestamp}.png`
+    await uploadImage(supabase, 'menu-images', imagePath, imageBuffer)
+
+    // Generate and upload thumbnail
+    const thumbBuffer = await createThumbnail(imageBuffer, 400)
+    const thumbPath = `menus/${menu_id}/${timestamp}_thumb.png`
+    await uploadImage(supabase, 'menu-images', thumbPath, thumbBuffer)
+
+    // Insert menu_images record
+    const { data: image, error: insertError } = await supabase
+      .from('menu_images')
+      .insert({
+        menu_id,
+        language: 'es',
+        image_url: imagePath,
+        thumbnail_url: thumbPath,
+        format: 'png',
+        width: imageWidth,
+        height: imageHeight,
+        prompt_used: prompt,
+      })
+      .select()
+      .single()
+
+    if (insertError) {
+      console.error('Error al guardar imagen:', insertError)
+      return NextResponse.json(
+        { error: 'Error al guardar registro de imagen' },
+        { status: 500 }
+      )
+    }
+
+    // Update menu status
+    await supabase
+      .from('menus')
+      .update({ status: 'generated', style_id })
+      .eq('id', menu_id)
+
+    return NextResponse.json({ image })
+  } catch (error) {
+    console.error('Error en generacion de imagen:', error)
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Error inesperado al generar imagen',
+      },
+      { status: 500 }
+    )
+  }
+}
