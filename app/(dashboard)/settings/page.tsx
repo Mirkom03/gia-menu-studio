@@ -11,15 +11,15 @@ export default async function SettingsPage() {
   ])
 
   return (
-    <div className="pt-6 lg:pt-10">
-      <h1 className="text-2xl font-bold tracking-tight">Ajustes</h1>
+    <div className="mx-auto max-w-2xl space-y-10">
+      <h1 className="font-display text-3xl font-semibold tracking-tight">Ajustes</h1>
 
-      <section className="mt-8">
-        <h2 className="text-lg font-semibold">Apariencia</h2>
-        <div className="mt-4 flex items-center justify-between rounded-lg border p-4">
+      <section className="space-y-4">
+        <h2 className="font-display text-lg font-medium">Apariencia</h2>
+        <div className="flex items-center justify-between rounded-xl border bg-card p-5 shadow-sm">
           <div>
             <p className="font-medium">Modo oscuro</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mt-0.5">
               Cambia entre tema claro y oscuro
             </p>
           </div>
@@ -27,24 +27,24 @@ export default async function SettingsPage() {
         </div>
       </section>
 
-      <section className="mt-8">
-        <h2 className="text-lg font-semibold">Preferencias por defecto</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Valores iniciales para la generacion de imagenes
-        </p>
-        <div className="mt-4">
-          <PreferenceForm initialPreferences={preferences} />
+      <section className="space-y-4">
+        <div>
+          <h2 className="font-display text-lg font-medium">Preferencias por defecto</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Valores iniciales para la generación de imágenes
+          </p>
         </div>
+        <PreferenceForm initialPreferences={preferences} />
       </section>
 
-      <section className="mt-8">
-        <h2 className="text-lg font-semibold">Gestion de estilos</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Administra los estilos disponibles para generar imagenes
-        </p>
-        <div className="mt-4">
-          <StyleManager initialStyles={styles} />
+      <section className="space-y-4">
+        <div>
+          <h2 className="font-display text-lg font-medium">Gestión de estilos</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Administra los estilos disponibles para generar imágenes
+          </p>
         </div>
+        <StyleManager initialStyles={styles} />
       </section>
     </div>
   )

@@ -66,32 +66,31 @@ export default async function MenuDetailPage({
   }
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-6">
-      <Button variant="ghost" size="sm" render={<Link href="/history" />} className="mb-4">
+    <div className="mx-auto max-w-2xl space-y-6">
+      <Button variant="ghost" size="sm" render={<Link href="/history" />}>
         <ArrowLeft data-icon="inline-start" />
         Volver al historial
       </Button>
 
       {/* Full image display */}
       {latestImage && signedImageUrl ? (
-        <div className="mb-6">
-          <img
-            src={signedImageUrl}
-            alt={`Imagen del menu: ${menuTitle}`}
-            className="w-full max-w-2xl rounded-lg shadow-md"
-          />
-
-          <div className="mt-4">
-            <MenuDetailActions
-              menuId={id}
-              imagePath={latestImage.image_url}
-              menuTitle={menuTitle}
+        <div className="space-y-4">
+          <div className="overflow-hidden rounded-xl shadow-lg">
+            <img
+              src={signedImageUrl}
+              alt={`Imagen del menu: ${menuTitle}`}
+              className="w-full"
             />
           </div>
+          <MenuDetailActions
+            menuId={id}
+            imagePath={latestImage.image_url}
+            menuTitle={menuTitle}
+          />
         </div>
       ) : (
-        <div className="mb-6 flex flex-col items-center rounded-lg border border-dashed p-8">
-          <p className="text-muted-foreground mb-4">No hay imagenes generadas</p>
+        <div className="flex flex-col items-center rounded-xl border border-dashed p-10 grain-overlay">
+          <p className="text-muted-foreground mb-5">No hay imágenes generadas</p>
           <Button render={<Link href={`/menu/${id}/generate`} />}>
             <Sparkles data-icon="inline-start" />
             Generar Imagen
@@ -100,17 +99,17 @@ export default async function MenuDetailPage({
       )}
 
       {/* Menu details card */}
-      <Card>
+      <Card className="shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <Badge variant={isWeekly ? 'default' : 'secondary'}>
-              {isWeekly ? 'Menu del Dia' : 'Menu de Evento'}
+              {isWeekly ? 'Menú del Día' : 'Menú de Evento'}
             </Badge>
             <Badge variant="outline">
               {STATUS_LABELS[menu.status] ?? menu.status}
             </Badge>
           </div>
-          <CardTitle className="text-lg mt-2">
+          <CardTitle className="font-display text-xl mt-3">
             {menuTitle}
           </CardTitle>
           {!isWeekly && menu.title && (
@@ -118,11 +117,11 @@ export default async function MenuDetailPage({
           )}
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           {menu.price != null && (
-            <div>
-              <span className="text-sm font-medium">Precio: </span>
-              <span className="text-sm">{menu.price} EUR</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-sm font-medium text-muted-foreground">Precio</span>
+              <span className="font-display text-lg font-medium">{menu.price} EUR</span>
             </div>
           )}
 
@@ -134,13 +133,13 @@ export default async function MenuDetailPage({
             if (!categoryItems || categoryItems.length === 0) return null
             return (
               <div key={value}>
-                <h3 className="text-sm font-semibold mb-2">{label}</h3>
-                <ul className="space-y-1.5">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">{label}</h3>
+                <ul className="space-y-2">
                   {categoryItems.map((item) => (
-                    <li key={item.id} className="text-sm">
-                      <span>{item.name_es}</span>
+                    <li key={item.id} className="text-sm leading-relaxed">
+                      <span className="font-medium">{item.name_es}</span>
                       {(item.name_en || item.name_fr) && (
-                        <span className="text-muted-foreground ml-1">
+                        <span className="text-muted-foreground ml-1.5">
                           (
                           {[item.name_en, item.name_fr]
                             .filter(Boolean)
@@ -157,7 +156,7 @@ export default async function MenuDetailPage({
 
           {items.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              No hay platos en este menu.
+              No hay platos en este menú.
             </p>
           )}
         </CardContent>

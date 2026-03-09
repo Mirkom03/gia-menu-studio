@@ -18,12 +18,12 @@ export function StepIndicator({ steps, current }: StepIndicatorProps) {
 
         return (
           <div key={label} className="flex items-center flex-1 last:flex-none">
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1.5">
               <div
                 className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors',
-                  isCompleted && 'bg-primary text-primary-foreground',
-                  isCurrent && 'bg-primary text-primary-foreground',
+                  'flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300',
+                  isCompleted && 'bg-primary text-primary-foreground shadow-sm',
+                  isCurrent && 'bg-primary text-primary-foreground shadow-md ring-4 ring-primary/20',
                   isFuture && 'bg-muted text-muted-foreground'
                 )}
               >
@@ -36,8 +36,8 @@ export function StepIndicator({ steps, current }: StepIndicatorProps) {
               <span
                 className={cn(
                   'hidden text-xs lg:block',
-                  isCurrent && 'font-medium text-foreground',
-                  isCompleted && 'text-foreground',
+                  isCurrent && 'font-semibold text-foreground',
+                  isCompleted && 'font-medium text-foreground',
                   isFuture && 'text-muted-foreground'
                 )}
               >
@@ -47,8 +47,8 @@ export function StepIndicator({ steps, current }: StepIndicatorProps) {
             {index < steps.length - 1 && (
               <div
                 className={cn(
-                  'mx-2 h-px flex-1',
-                  index < current ? 'bg-primary' : 'bg-muted'
+                  'mx-3 h-px flex-1 transition-colors duration-300',
+                  index < current ? 'bg-primary' : 'bg-border'
                 )}
               />
             )}

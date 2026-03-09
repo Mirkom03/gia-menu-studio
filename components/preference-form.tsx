@@ -39,18 +39,18 @@ export function PreferenceForm({ initialPreferences }: PreferenceFormProps) {
   return (
     <div className="space-y-4">
       {/* Default language */}
-      <div className="rounded-lg border p-4">
-        <label className="mb-2 block text-sm font-medium">Idioma por defecto</label>
+      <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Idioma por defecto</label>
         <LanguagePicker selected={language} onSelect={setLanguage} />
       </div>
 
       {/* Default aspect ratio */}
-      <div className="rounded-lg border p-4">
-        <label className="mb-2 block text-sm font-medium">Formato por defecto</label>
+      <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Formato por defecto</label>
         <select
           value={aspectRatio}
           onChange={(e) => setAspectRatio(e.target.value)}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+          className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {ratioOptions.map((r) => (
             <option key={r.id} value={r.id}>
@@ -61,12 +61,12 @@ export function PreferenceForm({ initialPreferences }: PreferenceFormProps) {
       </div>
 
       {/* Default DPI */}
-      <div className="rounded-lg border p-4">
-        <label className="mb-2 block text-sm font-medium">DPI por defecto</label>
+      <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">DPI por defecto</label>
         <select
           value={dpi}
           onChange={(e) => setDpi(Number(e.target.value))}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+          className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {DPI_OPTIONS.map((d) => (
             <option key={d.value} value={d.value}>
@@ -79,7 +79,7 @@ export function PreferenceForm({ initialPreferences }: PreferenceFormProps) {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+        className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.98] disabled:opacity-50"
       >
         {saving ? 'Guardando...' : 'Guardar'}
       </button>

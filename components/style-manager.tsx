@@ -41,8 +41,8 @@ function StyleCard({
 
   return (
     <div
-      className={`rounded-lg border p-4 transition-opacity ${
-        !style.is_active ? 'opacity-50' : ''
+      className={`rounded-xl border bg-card p-5 shadow-sm transition-all duration-200 ${
+        !style.is_active ? 'opacity-50' : 'hover:shadow-md'
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -50,29 +50,29 @@ function StyleCard({
           <div className="flex items-center gap-2">
             <h3 className="font-medium">{style.name}</h3>
             {!style.is_active && (
-              <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+              <span className="rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Desactivado
               </span>
             )}
           </div>
-          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+          <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground leading-relaxed">
             {style.description}
           </p>
         </div>
         <div className="flex shrink-0 gap-2">
           <button
             onClick={() => onEdit(style)}
-            className="rounded-md border px-3 py-1 text-xs hover:bg-muted"
+            className="rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:bg-accent active:scale-[0.97]"
           >
             Editar
           </button>
           <button
             onClick={handleToggle}
             disabled={toggling}
-            className={`rounded-md px-3 py-1 text-xs ${
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 active:scale-[0.97] ${
               style.is_active
-                ? 'border hover:bg-muted'
-                : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                ? 'border hover:bg-accent'
+                : 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
             } disabled:opacity-50`}
           >
             {toggling
@@ -125,47 +125,47 @@ function StyleForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border bg-muted/30 p-4">
-      <div>
-        <label className="mb-1 block text-sm font-medium">Nombre</label>
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border bg-accent/30 p-5">
+      <div className="space-y-1.5">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nombre</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+          className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           placeholder="Mi estilo personalizado"
         />
       </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium">Descripcion</label>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Descripción</label>
         <input
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-          placeholder="Breve descripcion del estilo"
+          className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          placeholder="Breve descripción del estilo"
         />
       </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium">Prompt</label>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Prompt</label>
         <textarea
           value={promptTemplate}
           onChange={(e) => setPromptTemplate(e.target.value)}
           rows={3}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-          placeholder="Instrucciones de estilo para la generacion de imagenes..."
+          className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          placeholder="Instrucciones de estilo para la generación de imágenes..."
         />
       </div>
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.98] disabled:opacity-50"
         >
           {saving ? 'Guardando...' : initial ? 'Actualizar' : 'Crear'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border px-4 py-2 text-sm hover:bg-muted"
+          className="rounded-lg border px-5 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-accent active:scale-[0.98]"
         >
           Cancelar
         </button>
@@ -207,9 +207,9 @@ export function StyleManager({ initialStyles }: StyleManagerProps) {
         {!showAddForm && (
           <button
             onClick={() => setShowAddForm(true)}
-            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.98]"
           >
-            Anadir estilo
+            Añadir estilo
           </button>
         )}
       </div>

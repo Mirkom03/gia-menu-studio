@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import type { Style } from '@/lib/types'
 
 interface StyleGalleryProps {
@@ -42,9 +43,10 @@ export function StyleGallery({ styles, selected, onSelect }: StyleGalleryProps) 
           return (
             <Card
               key={style.id}
-              className={`cursor-pointer transition-all hover:shadow-md ${
-                isSelected ? 'ring-2 ring-primary' : ''
-              }`}
+              className={cn(
+                'cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5',
+                isSelected && 'ring-2 ring-primary shadow-md'
+              )}
               onClick={() => onSelect(style.id)}
             >
               {/* Preview area */}
@@ -52,14 +54,14 @@ export function StyleGallery({ styles, selected, onSelect }: StyleGalleryProps) 
                 <img
                   src={style.preview_url}
                   alt={style.name}
-                  className="aspect-[3/4] w-full object-cover rounded-t-lg"
+                  className="aspect-[3/4] w-full object-cover"
                 />
               ) : (
                 <div
-                  className="aspect-[3/4] w-full rounded-t-lg flex items-center justify-center"
+                  className="aspect-[3/4] w-full flex items-center justify-center"
                   style={{ background: buildGradient(style.colors ?? {}) }}
                 >
-                  <span className="text-lg font-bold text-white/80 drop-shadow-sm text-center px-2">
+                  <span className="font-display text-lg font-semibold text-white/90 drop-shadow-md text-center px-3">
                     {style.name}
                   </span>
                 </div>
@@ -80,13 +82,13 @@ export function StyleGallery({ styles, selected, onSelect }: StyleGalleryProps) 
         <div className="space-y-2">
           <label
             htmlFor="custom-style-prompt"
-            className="text-sm font-medium"
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
           >
             Estilo personalizado
           </label>
           <textarea
             id="custom-style-prompt"
-            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex min-h-[80px] w-full rounded-lg border border-input bg-background px-4 py-3 text-sm transition-all duration-200 placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent"
             placeholder="Describe el estilo que deseas..."
             value={customPrompt}
             onChange={(e) => {

@@ -70,33 +70,33 @@ export default async function DashboardPage() {
     : null
 
   return (
-    <div className="container max-w-5xl mx-auto px-4 py-6">
+    <div className="space-y-10">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">
-          Bienvenido a Gia
+      <div>
+        <h1 className="font-display text-4xl font-semibold tracking-tight lg:text-5xl">
+          Bienvenido a Già
         </h1>
-        <p className="mt-2 text-muted-foreground">
-          Tu estudio de menus con IA
+        <p className="mt-3 text-lg text-muted-foreground">
+          Tu estudio de menús con IA
         </p>
       </div>
 
       {/* Current week section */}
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">Menu de esta semana</h2>
+      <section className="space-y-4">
+        <h2 className="font-display text-xl font-medium tracking-tight">Menú de esta semana</h2>
         {currentWeekMenu ? (
           <div className="space-y-3">
-            <Link href={`/menu/${currentWeekMenu.id}`} className="block">
-              <Card className="flex flex-col sm:flex-row overflow-hidden transition-shadow hover:shadow-md cursor-pointer">
+            <Link href={`/menu/${currentWeekMenu.id}`} className="block group">
+              <Card className="flex flex-col sm:flex-row overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer">
                 {weekMenuThumbnailUrl && (
                   <img
                     src={weekMenuThumbnailUrl}
                     alt={`Menu semanal ${weekDateLabel}`}
-                    className="aspect-[4/3] sm:w-48 object-cover"
+                    className="aspect-[4/3] sm:w-52 object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                   />
                 )}
-                <CardContent className="flex-1 p-4">
-                  <div className="flex items-center gap-2 mb-2">
+                <CardContent className="flex-1 p-5">
+                  <div className="flex items-center gap-2 mb-3">
                     <Badge variant="default">Semanal</Badge>
                     <Badge variant="outline">
                       {currentWeekMenu.status === 'generated'
@@ -121,19 +121,19 @@ export default async function DashboardPage() {
                 }
               >
                 <Copy data-icon="inline-start" />
-                Duplicar para la proxima semana
+                Duplicar para la próxima semana
               </Button>
             )}
           </div>
         ) : (
-          <Card className="flex flex-col items-center p-6 border-dashed">
-            <p className="text-muted-foreground mb-4">
-              No hay menu para esta semana
+          <Card className="flex flex-col items-center p-8 border-dashed grain-overlay">
+            <p className="text-muted-foreground mb-5">
+              No hay menú para esta semana
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button render={<Link href="/create" />}>
                 <CalendarDays data-icon="inline-start" />
-                Crear Menu del Dia
+                Crear Menú del Día
               </Button>
               {mostRecentWeekly && (
                 <Button
@@ -154,31 +154,31 @@ export default async function DashboardPage() {
       </section>
 
       {/* Create buttons */}
-      <section className="mb-8">
+      <section>
         <div className="grid grid-cols-2 gap-4">
           <Link href="/create" className="group">
-            <Card className="flex items-center gap-3 p-4 transition-colors hover:border-primary">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Card className="flex items-center gap-4 p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 hover:border-primary/50">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
                 <CalendarDays className="size-5" />
               </div>
               <div>
-                <CardTitle className="text-sm">Crear Menu del Dia</CardTitle>
-                <CardDescription className="text-xs">
-                  Menu semanal con IA
+                <CardTitle className="text-sm font-semibold">Crear Menú del Día</CardTitle>
+                <CardDescription className="text-xs mt-0.5">
+                  Menú semanal con IA
                 </CardDescription>
               </div>
             </Card>
           </Link>
 
           <Link href="/create" className="group">
-            <Card className="flex items-center gap-3 border-dashed p-4 transition-colors hover:border-primary">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 border-primary text-primary">
+            <Card className="flex items-center gap-4 border-dashed p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 hover:border-primary/50">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-primary text-primary">
                 <PlusCircle className="size-5" />
               </div>
               <div>
-                <CardTitle className="text-sm">Menu de Evento</CardTitle>
-                <CardDescription className="text-xs">
-                  Menu especial para eventos
+                <CardTitle className="text-sm font-semibold">Menú de Evento</CardTitle>
+                <CardDescription className="text-xs mt-0.5">
+                  Menú especial para eventos
                 </CardDescription>
               </div>
             </Card>
@@ -188,8 +188,8 @@ export default async function DashboardPage() {
 
       {/* Recent menus */}
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">Menus Recientes</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display text-xl font-medium tracking-tight">Menús Recientes</h2>
           <Button variant="ghost" size="sm" render={<Link href="/history" />}>
             Ver todo el historial
             <ArrowRight data-icon="inline-end" />
@@ -198,7 +198,7 @@ export default async function DashboardPage() {
 
         {recentMenus.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No hay menus guardados
+            No hay menús guardados
           </p>
         ) : (
           <div className="flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-3 lg:overflow-x-visible">

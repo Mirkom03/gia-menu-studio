@@ -46,7 +46,7 @@ export function MenuForm({ initialData }: MenuFormProps) {
     setIsSubmitting(true)
     try {
       const result = await createMenu(formData)
-      toast.success('Menu guardado correctamente')
+      toast.success('Menú guardado correctamente')
       router.push(`/menu/${result.id}`)
     } catch (error) {
       const message =
@@ -57,7 +57,7 @@ export function MenuForm({ initialData }: MenuFormProps) {
   }, [formData, router])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Progress indicator */}
       <StepIndicator steps={STEPS} current={step} />
 
@@ -79,14 +79,14 @@ export function MenuForm({ initialData }: MenuFormProps) {
       </div>
 
       {/* Navigation */}
-      <div className="sticky bottom-0 flex items-center justify-between border-t bg-background py-3 -mx-4 px-4">
+      <div className="sticky bottom-0 flex items-center justify-between border-t border-border/60 bg-background/90 backdrop-blur-sm py-4 -mx-4 px-4 lg:-mx-0 lg:px-0">
         {step > 0 ? (
           <Button
             variant="outline"
             onClick={() => setStep((s) => s - 1)}
             type="button"
           >
-            Atras
+            Atrás
           </Button>
         ) : (
           <div />

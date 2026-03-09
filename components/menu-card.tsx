@@ -42,14 +42,20 @@ export function MenuCard({ menu, thumbnailUrl }: MenuCardProps) {
   ]
 
   return (
-    <Link href={`/menu/${menu.id}`} className="block">
-      <Card className="transition-shadow hover:shadow-md cursor-pointer">
-        {thumbnailUrl && (
-          <img
-            src={thumbnailUrl}
-            alt={isWeekly ? `Menu semanal ${dateLabel}` : (menu.title ?? 'Evento')}
-            className="aspect-[4/3] w-full object-cover"
-          />
+    <Link href={`/menu/${menu.id}`} className="block group">
+      <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer">
+        {thumbnailUrl ? (
+          <div className="overflow-hidden">
+            <img
+              src={thumbnailUrl}
+              alt={isWeekly ? `Menu semanal ${dateLabel}` : (menu.title ?? 'Evento')}
+              className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        ) : (
+          <div className="aspect-[4/3] w-full bg-gradient-to-br from-primary/10 to-accent flex items-center justify-center">
+            <span className="font-display text-lg text-muted-foreground/60">Sin imagen</span>
+          </div>
         )}
         <CardHeader>
           <CardTitle className="text-sm font-normal text-muted-foreground">
@@ -61,7 +67,7 @@ export function MenuCard({ menu, thumbnailUrl }: MenuCardProps) {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardContent className="space-y-1.5">
+        <CardContent className="space-y-2">
           {!isWeekly && menu.title && (
             <p className="font-semibold">{menu.title}</p>
           )}
@@ -72,7 +78,7 @@ export function MenuCard({ menu, thumbnailUrl }: MenuCardProps) {
               {menu.active_days.map((day) => (
                 <span
                   key={day}
-                  className="inline-flex items-center px-1.5 py-0.5 text-xs rounded-full bg-muted text-muted-foreground"
+                  className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-muted text-muted-foreground"
                 >
                   {DAY_ABBREVIATIONS[day] ?? day}
                 </span>
@@ -82,14 +88,14 @@ export function MenuCard({ menu, thumbnailUrl }: MenuCardProps) {
 
           <div className="flex items-center gap-3 text-sm">
             {menu.price != null && (
-              <span>{menu.price} EUR</span>
+              <span className="font-medium">{menu.price} EUR</span>
             )}
             <span className="text-muted-foreground">
               {itemCount} {itemCount === 1 ? 'plato' : 'platos'}
             </span>
           </div>
 
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-2">
             <Badge variant="outline">
               {STATUS_LABELS[menu.status] ?? menu.status}
             </Badge>
@@ -100,7 +106,7 @@ export function MenuCard({ menu, thumbnailUrl }: MenuCardProps) {
                 {languages.map((lang) => (
                   <span
                     key={lang}
-                    className="inline-flex items-center px-1.5 py-0.5 text-xs rounded-full bg-primary/10 text-primary"
+                    className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-primary/10 text-primary"
                   >
                     {lang.toUpperCase()}
                   </span>

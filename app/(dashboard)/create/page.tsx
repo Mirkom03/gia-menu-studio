@@ -19,9 +19,9 @@ export default async function CreatePage({
   }
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold tracking-tight mb-6">
-        {initialData ? 'Duplicar Menu' : 'Crear Menu'}
+    <div className="mx-auto max-w-2xl">
+      <h1 className="font-display text-3xl font-semibold tracking-tight mb-8">
+        {initialData ? 'Duplicar Menú' : 'Crear Menú'}
       </h1>
       <MenuForm initialData={initialData} />
     </div>

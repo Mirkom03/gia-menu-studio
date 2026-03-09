@@ -19,27 +19,44 @@ function LoginContent() {
   }, [searchParams])
 
   return (
-    <div className="flex flex-col items-center gap-8">
-      <h1 className="text-3xl font-bold">Gia</h1>
-      <form action={signIn} className="flex flex-col gap-4 w-full max-w-xs">
-        <input
-          name="email"
-          type="email"
-          placeholder="Correo electronico"
-          required
-          className="rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Contraseña"
-          required
-          className="rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        />
-        <Button size="lg" type="submit">
-          Entrar
-        </Button>
-      </form>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-accent/40">
+      <div className="grain-overlay w-full max-w-sm rounded-2xl border bg-card/80 p-8 shadow-xl backdrop-blur-sm">
+        <div className="flex flex-col items-center gap-2 mb-8">
+          <h1 className="font-display text-4xl font-semibold tracking-tight text-primary">Già</h1>
+          <p className="text-sm text-muted-foreground">Menu Studio</p>
+        </div>
+        <form action={signIn} className="flex flex-col gap-4">
+          <div className="space-y-1.5">
+            <label htmlFor="email" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Correo electrónico
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="chef@gia.com"
+              required
+              className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-all duration-200 placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="password" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Contraseña
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              required
+              className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm transition-all duration-200 placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent"
+            />
+          </div>
+          <Button size="lg" type="submit" className="mt-2 w-full">
+            Entrar
+          </Button>
+        </form>
+      </div>
     </div>
   )
 }

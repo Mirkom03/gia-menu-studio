@@ -54,27 +54,25 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   }
 
   return (
-    <div className="container max-w-5xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold tracking-tight mb-6">
-        Historial de Menus
+    <div className="space-y-8">
+      <h1 className="font-display text-3xl font-semibold tracking-tight">
+        Historial de Menús
       </h1>
 
-      <div className="mb-6">
-        <GalleryFilters
-          currentType={params.type ?? ''}
-          currentSearch={params.search ?? ''}
-          currentDateFrom={params.dateFrom ?? ''}
-          currentDateTo={params.dateTo ?? ''}
-          currentLanguage={params.language ?? ''}
-        />
-      </div>
+      <GalleryFilters
+        currentType={params.type ?? ''}
+        currentSearch={params.search ?? ''}
+        currentDateFrom={params.dateFrom ?? ''}
+        currentDateTo={params.dateTo ?? ''}
+        currentLanguage={params.language ?? ''}
+      />
 
       {menus.length === 0 ? (
-        <div className="flex flex-col items-center pt-12">
+        <div className="flex flex-col items-center pt-16">
           {hasFilters ? (
             <>
-              <p className="text-muted-foreground mb-4">
-                No se encontraron menus
+              <p className="text-muted-foreground mb-5">
+                No se encontraron menús
               </p>
               <Button render={<Link href="/history" />}>
                 Limpiar filtros
@@ -82,18 +80,18 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             </>
           ) : (
             <>
-              <p className="text-muted-foreground mb-4">
-                No hay menus guardados
+              <p className="text-muted-foreground mb-5">
+                No hay menús guardados
               </p>
               <Button render={<Link href="/create" />}>
                 <Plus data-icon="inline-start" />
-                Crear tu primer menu
+                Crear tu primer menú
               </Button>
             </>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
           {menus.map((menu) => (
             <MenuCard
               key={menu.id}

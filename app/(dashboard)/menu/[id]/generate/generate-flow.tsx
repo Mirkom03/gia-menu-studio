@@ -153,7 +153,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
   }
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
+    <div className="mx-auto max-w-2xl space-y-8">
       {/* Back button */}
       <Button
         variant="ghost"
@@ -161,18 +161,18 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
         render={<Link href={`/menu/${menu.id}`} />}
       >
         <ArrowLeft data-icon="inline-start" />
-        Volver al menu
+        Volver al menú
       </Button>
 
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold">Generar Imagen</h1>
-        <p className="text-sm text-muted-foreground">{subtitle}</p>
+        <h1 className="font-display text-2xl font-semibold tracking-tight">Generar Imagen</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
       </div>
 
       {/* Style selection */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Estilo</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Estilo</h2>
         <StyleGallery
           styles={styles}
           selected={selectedStyle}
@@ -184,7 +184,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
 
       {/* Aspect ratio selection */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Formato</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Formato</h2>
         <AspectRatioPicker
           selected={selectedRatio}
           onSelect={setSelectedRatio}
@@ -195,7 +195,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
 
       {/* Language selection */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Idioma</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Idioma</h2>
         <LanguagePicker
           selected={selectedLanguage}
           onSelect={setSelectedLanguage}
@@ -214,29 +214,33 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
 
       {/* Generated image display */}
       {imageUrl && generatedImage && (
-        <section className="space-y-4">
+        <section className="space-y-5">
           <Separator />
-          <div className={generatedImageEn && imageUrlEn ? 'grid grid-cols-1 sm:grid-cols-2 gap-4' : ''}>
+          <div className={generatedImageEn && imageUrlEn ? 'grid grid-cols-1 sm:grid-cols-2 gap-5' : ''}>
             <div className="space-y-2">
-              <p className="text-xs font-medium text-center text-muted-foreground">Español</p>
-              <img
-                src={imageUrl}
-                alt="Menu en español"
-                className="w-full rounded-lg shadow-lg"
-              />
+              <p className="text-xs font-semibold text-center text-muted-foreground uppercase tracking-wider">Español</p>
+              <div className="overflow-hidden rounded-xl shadow-lg">
+                <img
+                  src={imageUrl}
+                  alt="Menu en español"
+                  className="w-full"
+                />
+              </div>
             </div>
             {generatedImageEn && imageUrlEn && (
               <div className="space-y-2">
-                <p className="text-xs font-medium text-center text-muted-foreground">English</p>
-                <img
-                  src={imageUrlEn}
-                  alt="Menu in English"
-                  className="w-full rounded-lg shadow-lg"
-                />
+                <p className="text-xs font-semibold text-center text-muted-foreground uppercase tracking-wider">English</p>
+                <div className="overflow-hidden rounded-xl shadow-lg">
+                  <img
+                    src={imageUrlEn}
+                    alt="Menu in English"
+                    className="w-full"
+                  />
+                </div>
               </div>
             )}
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             {!generatedImageEn && (
               <Button
                 size="lg"
@@ -262,7 +266,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
               className="w-full lg:w-auto"
               render={<Link href={`/menu/${menu.id}`} />}
             >
-              Volver al menu
+              Volver al menú
             </Button>
           </div>
         </section>

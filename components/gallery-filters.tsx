@@ -70,7 +70,7 @@ export function GalleryFilters({
       {/* Row 1: Type toggles + Language toggles */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
         {/* Type toggles */}
-        <div className="flex gap-1">
+        <div className="flex gap-1.5">
           {TYPE_OPTIONS.map((opt) => (
             <Button
               key={opt.value}
@@ -84,7 +84,7 @@ export function GalleryFilters({
         </div>
 
         {/* Language toggles */}
-        <div className="flex gap-1">
+        <div className="flex gap-1.5">
           {LANGUAGE_OPTIONS.map((opt) => (
             <Button
               key={opt.value}
@@ -101,7 +101,7 @@ export function GalleryFilters({
       {/* Row 2: Date range */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
         <div className="flex items-center gap-2">
-          <label htmlFor="dateFrom" className="text-sm text-muted-foreground whitespace-nowrap">
+          <label htmlFor="dateFrom" className="text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">
             Desde
           </label>
           <Input
@@ -113,7 +113,7 @@ export function GalleryFilters({
           />
         </div>
         <div className="flex items-center gap-2">
-          <label htmlFor="dateTo" className="text-sm text-muted-foreground whitespace-nowrap">
+          <label htmlFor="dateTo" className="text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">
             Hasta
           </label>
           <Input
@@ -128,13 +128,13 @@ export function GalleryFilters({
 
       {/* Row 3: Search */}
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
           type="text"
           placeholder="Buscar por plato o evento..."
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="pl-8"
+          className="pl-9"
         />
       </div>
     </div>
