@@ -26,11 +26,10 @@ export async function updateSession(request: NextRequest) {
   // getUser() validates with Supabase server; getSession() trusts cookies (spoofable)
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Redirect unauthenticated users to login (except public routes)
+  // Redirect unauthenticated users to login (except login page)
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/api/auth')
+    !request.nextUrl.pathname.startsWith('/login')
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'

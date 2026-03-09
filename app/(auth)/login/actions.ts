@@ -1,24 +1,22 @@
 'use server'
 
-import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
-export async function signInWithGoogle() {
-  const supabase = await createClient()
-  const requestHeaders = await headers()
-  const origin = requestHeaders.get('origin')
+export async function signIn(formData: FormData) {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
 
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${origin}/api/auth/callback`,
-    },
-  })
-
-  if (error || !data.url) {
-    return redirect('/login?error=oauth_failed')
+  if (!email || !password) {
+    return redirect('/login?error=missing_fields')
   }
 
-  return redirect(data.url)
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+  if (error) {
+    return redirect('/login?error=invalid_credentials')
+  }
+
+  return redirect('/')
 }
