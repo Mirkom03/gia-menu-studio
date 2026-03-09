@@ -54,6 +54,7 @@ export interface MenuImage {
   width: number | null
   height: number | null
   size_bytes: number | null
+  thumbnail_url: string | null
   prompt_used: string | null
   created_at: string
 }
