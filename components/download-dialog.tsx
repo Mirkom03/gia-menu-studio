@@ -19,18 +19,39 @@ import { DPI_OPTIONS, PAPER_SIZES } from '@/lib/constants'
 interface DownloadDialogProps {
   imagePath: string
   menuTitle?: string
+  /** Controlled open state (optional -- if not provided, uses internal state with trigger) */
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  /** Default format selection */
+  defaultFormat?: Format
 }
 
 type Format = 'png' | 'pdf'
 
-export function DownloadDialog({ imagePath, menuTitle }: DownloadDialogProps) {
-  const [open, setOpen] = React.useState(false)
-  const [format, setFormat] = React.useState<Format>('png')
+export function DownloadDialog({
+  imagePath,
+  menuTitle,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  defaultFormat = 'png',
+}: DownloadDialogProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false)
+
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : internalOpen
+  const setOpen = isControlled ? (controlledOnOpenChange ?? (() => {})) : setInternalOpen
+
+  const [format, setFormat] = React.useState<Format>(defaultFormat)
   const [dpi, setDpi] = React.useState(150)
   const [paperSize, setPaperSize] = React.useState('a4')
   const [customWidth, setCustomWidth] = React.useState(210)
   const [customHeight, setCustomHeight] = React.useState(297)
   const [loading, setLoading] = React.useState(false)
+
+  // Sync defaultFormat when it changes (controlled mode)
+  React.useEffect(() => {
+    setFormat(defaultFormat)
+  }, [defaultFormat])
 
   async function handleDownload() {
     setLoading(true)
@@ -79,12 +100,15 @@ export function DownloadDialog({ imagePath, menuTitle }: DownloadDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={<Button variant="outline" size="sm" />}
-      >
-        <Download data-icon="inline-start" />
-        Descargar
-      </DialogTrigger>
+      {/* Only render built-in trigger when uncontrolled */}
+      {!isControlled && (
+        <DialogTrigger
+          render={<Button variant="outline" size="sm" />}
+        >
+          <Download data-icon="inline-start" />
+          Descargar
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Descargar imagen</DialogTitle>

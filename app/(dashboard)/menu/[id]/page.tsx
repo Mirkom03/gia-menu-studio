@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { getMenuById } from '@/lib/actions/menu-actions'
+import { MenuDetailActions } from '@/components/menu-detail-actions'
+import { getMenuById, getMenuImages } from '@/lib/actions/menu-actions'
+import { getSignedUrl } from '@/lib/image-utils'
+import { createClient } from '@/lib/supabase/server'
 import { formatRangeSpanish, formatDateSpanish } from '@/lib/date-utils'
 import { CATEGORIES } from '@/lib/menu-helpers'
 import type { MenuItem } from '@/lib/types'
@@ -32,11 +35,27 @@ export default async function MenuDetailPage({
     notFound()
   }
 
+  const images = await getMenuImages(id)
+  const latestImage = images[0] ?? null
+
+  // Generate signed URL for the latest image
+  let signedImageUrl: string | null = null
+  if (latestImage) {
+    try {
+      const supabase = await createClient()
+      signedImageUrl = await getSignedUrl(supabase, 'menu-images', latestImage.image_url)
+    } catch {
+      // Failed to generate signed URL -- show fallback
+    }
+  }
+
   const isWeekly = menu.type === 'weekly'
 
   const dateLabel = isWeekly
     ? formatRangeSpanish(menu.week_start, menu.week_end ?? menu.week_start)
     : formatDateSpanish(menu.week_start)
+
+  const menuTitle = !isWeekly && menu.title ? menu.title : dateLabel
 
   // Group items by category
   const grouped = new Map<string, MenuItem[]>()
@@ -53,6 +72,34 @@ export default async function MenuDetailPage({
         Volver al historial
       </Button>
 
+      {/* Full image display */}
+      {latestImage && signedImageUrl ? (
+        <div className="mb-6">
+          <img
+            src={signedImageUrl}
+            alt={`Imagen del menu: ${menuTitle}`}
+            className="w-full max-w-2xl rounded-lg shadow-md"
+          />
+
+          <div className="mt-4">
+            <MenuDetailActions
+              menuId={id}
+              imagePath={latestImage.image_url}
+              menuTitle={menuTitle}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="mb-6 flex flex-col items-center rounded-lg border border-dashed p-8">
+          <p className="text-muted-foreground mb-4">No hay imagenes generadas</p>
+          <Button render={<Link href={`/menu/${id}/generate`} />}>
+            <Sparkles data-icon="inline-start" />
+            Generar Imagen
+          </Button>
+        </div>
+      )}
+
+      {/* Menu details card */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -64,7 +111,7 @@ export default async function MenuDetailPage({
             </Badge>
           </div>
           <CardTitle className="text-lg mt-2">
-            {!isWeekly && menu.title ? menu.title : dateLabel}
+            {menuTitle}
           </CardTitle>
           {!isWeekly && menu.title && (
             <p className="text-sm text-muted-foreground">{dateLabel}</p>
@@ -113,18 +160,6 @@ export default async function MenuDetailPage({
               No hay platos en este menu.
             </p>
           )}
-
-          <Separator />
-
-          <Button
-            variant="default"
-            size="lg"
-            className="w-full"
-            render={<Link href={`/menu/${id}/generate`} />}
-          >
-            <Sparkles data-icon="inline-start" />
-            Generar Imagen
-          </Button>
         </CardContent>
       </Card>
     </div>

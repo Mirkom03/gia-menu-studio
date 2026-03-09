@@ -286,3 +286,80 @@ export async function deleteMenu(id: string): Promise<void> {
   revalidatePath('/history')
   revalidatePath('/')
 }
+
+/**
+ * Deletes a menu, its storage images, and the DB record.
+ * Cleans up both full images and thumbnails from storage.
+ */
+export async function deleteMenuWithImages(id: string): Promise<void> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+  if (authError || !user) {
+    throw new Error('No autenticado.')
+  }
+
+  // Fetch all images for this menu
+  const { data: images, error: imgError } = await supabase
+    .from('menu_images')
+    .select('image_url, thumbnail_url')
+    .eq('menu_id', id)
+
+  if (imgError) {
+    throw new Error(`Error al obtener imagenes: ${imgError.message}`)
+  }
+
+  // Collect all storage paths (filter nulls)
+  const storagePaths: string[] = []
+  for (const img of images ?? []) {
+    if (img.image_url) storagePaths.push(img.image_url)
+    if (img.thumbnail_url) storagePaths.push(img.thumbnail_url)
+  }
+
+  // Delete storage objects if any
+  if (storagePaths.length > 0) {
+    const { error: storageError } = await supabase.storage
+      .from('menu-images')
+      .remove(storagePaths)
+
+    if (storageError) {
+      console.error('Error al eliminar archivos de storage:', storageError.message)
+      // Continue with DB deletion even if storage cleanup fails
+    }
+  }
+
+  // Delete the menu record (CASCADE deletes menu_items and menu_images)
+  const { error: deleteError } = await supabase
+    .from('menus')
+    .delete()
+    .eq('id', id)
+
+  if (deleteError) {
+    throw new Error(`Error al eliminar el menu: ${deleteError.message}`)
+  }
+
+  revalidatePath('/history')
+  revalidatePath('/')
+}
+
+/**
+ * Returns all images for a menu, ordered newest first.
+ */
+export async function getMenuImages(menuId: string): Promise<MenuImage[]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('menu_images')
+    .select('*')
+    .eq('menu_id', menuId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    throw new Error(`Error al cargar las imagenes: ${error.message}`)
+  }
+
+  return (data ?? []) as MenuImage[]
+}
