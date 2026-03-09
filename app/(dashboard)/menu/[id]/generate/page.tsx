@@ -2,13 +2,22 @@ import { notFound } from 'next/navigation'
 import { getMenuById } from '@/lib/actions/menu-actions'
 import { getStyles } from '@/lib/actions/style-actions'
 import { GenerateFlow } from './generate-flow'
+import type { Language } from '@/lib/types'
+
+const VALID_LANGUAGES = new Set<Language>(['es', 'en', 'fr'])
 
 export default async function GeneratePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ lang?: string }>
 }) {
   const { id } = await params
+  const { lang } = await searchParams
+
+  const defaultLanguage: Language =
+    lang && VALID_LANGUAGES.has(lang as Language) ? (lang as Language) : 'es'
 
   let menu, items
   try {
@@ -21,5 +30,12 @@ export default async function GeneratePage({
 
   const styles = await getStyles()
 
-  return <GenerateFlow menu={menu} items={items} styles={styles} />
+  return (
+    <GenerateFlow
+      menu={menu}
+      items={items}
+      styles={styles}
+      defaultLanguage={defaultLanguage}
+    />
+  )
 }

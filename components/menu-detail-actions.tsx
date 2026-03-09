@@ -87,8 +87,12 @@ export function MenuDetailActions({
           Duplicar
         </Button>
 
-        {/* Generate in another language (disabled -- Phase 5) */}
-        <Button variant="outline" size="sm" disabled title="Disponible pronto">
+        {/* Generate in another language */}
+        <Button
+          variant="outline"
+          size="sm"
+          render={<Link href={`/menu/${menuId}/generate?lang=en`} />}
+        >
           <Languages data-icon="inline-start" />
           Generar en otro idioma
         </Button>

@@ -9,19 +9,22 @@ import { Separator } from '@/components/ui/separator'
 import { StyleGallery } from '@/components/style-gallery'
 import { AspectRatioPicker } from '@/components/aspect-ratio-picker'
 import { GenerateButton } from '@/components/generate-button'
+import { LanguagePicker } from '@/components/language-picker'
 import { formatRangeSpanish, formatDateSpanish } from '@/lib/date-utils'
-import type { Menu, MenuItem, MenuImage, Style } from '@/lib/types'
+import type { Menu, MenuItem, MenuImage, Style, Language } from '@/lib/types'
 
 interface GenerateFlowProps {
   menu: Menu
   items: MenuItem[]
   styles: Style[]
+  defaultLanguage?: Language
 }
 
-export function GenerateFlow({ menu, items, styles }: GenerateFlowProps) {
+export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es' }: GenerateFlowProps) {
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null)
   const [customStylePrompt, setCustomStylePrompt] = useState('')
   const [selectedRatio, setSelectedRatio] = useState('instagram')
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>(defaultLanguage)
   const [loading, setLoading] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<MenuImage | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
@@ -45,6 +48,30 @@ export function GenerateFlow({ menu, items, styles }: GenerateFlowProps) {
 
     setLoading(true)
     try {
+      // Translate first if non-Spanish
+      if (selectedLanguage !== 'es') {
+        toast.info('Traduciendo platos...')
+        const translateRes = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            menuId: menu.id,
+            targetLanguage: selectedLanguage,
+          }),
+        })
+
+        const translateData = await translateRes.json()
+
+        if (!translateRes.ok) {
+          toast.error(translateData.error ?? 'Error al traducir platos')
+          return
+        }
+
+        if (translateData.count > 0) {
+          toast.success(`${translateData.count} platos traducidos`)
+        }
+      }
+
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -53,6 +80,7 @@ export function GenerateFlow({ menu, items, styles }: GenerateFlowProps) {
           style_id: selectedStyle,
           aspectRatio: selectedRatio,
           customStylePrompt: customStylePrompt || undefined,
+          language: selectedLanguage,
         }),
       })
 
@@ -108,6 +136,17 @@ export function GenerateFlow({ menu, items, styles }: GenerateFlowProps) {
         <AspectRatioPicker
           selected={selectedRatio}
           onSelect={setSelectedRatio}
+        />
+      </section>
+
+      <Separator />
+
+      {/* Language selection */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold">Idioma</h2>
+        <LanguagePicker
+          selected={selectedLanguage}
+          onSelect={setSelectedLanguage}
         />
       </section>
 
