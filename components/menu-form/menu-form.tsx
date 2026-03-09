@@ -19,7 +19,6 @@ export function MenuForm() {
   const [step, setStep] = useState(0)
   const [formData, setFormData] = useState<MenuFormData>({
     ...INITIAL_FORM_DATA,
-    activeDays: [...INITIAL_FORM_DATA.activeDays],
     dishes: [],
   })
   const [isSubmitting, setIsSubmitting] = useState(false)

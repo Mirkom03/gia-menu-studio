@@ -6,11 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { getMenuById } from '@/lib/actions/menu-actions'
-import {
-  formatWeekRangeSpanish,
-  formatEventDateSpanish,
-  formatActiveDaysLabel,
-} from '@/lib/date-utils'
+import { formatRangeSpanish, formatDateSpanish } from '@/lib/date-utils'
 import { CATEGORIES } from '@/lib/menu-helpers'
 import type { MenuItem } from '@/lib/types'
 
@@ -39,8 +35,8 @@ export default async function MenuDetailPage({
   const isWeekly = menu.type === 'weekly'
 
   const dateLabel = isWeekly
-    ? formatWeekRangeSpanish(menu.week_start, menu.week_end ?? menu.week_start)
-    : formatEventDateSpanish(menu.week_start)
+    ? formatRangeSpanish(menu.week_start, menu.week_end ?? menu.week_start)
+    : formatDateSpanish(menu.week_start)
 
   // Group items by category
   const grouped = new Map<string, MenuItem[]>()
@@ -76,15 +72,6 @@ export default async function MenuDetailPage({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {isWeekly && menu.active_days && menu.active_days.length > 0 && (
-            <div>
-              <span className="text-sm font-medium">Dias activos: </span>
-              <span className="text-sm text-muted-foreground">
-                {formatActiveDaysLabel(menu.active_days)}
-              </span>
-            </div>
-          )}
-
           {menu.price != null && (
             <div>
               <span className="text-sm font-medium">Precio: </span>

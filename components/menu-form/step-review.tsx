@@ -5,13 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import {
-  formatWeekRangeSpanish,
-  formatEventDateSpanish,
-  formatActiveDaysLabel,
-} from '@/lib/date-utils'
-import { getWeekEnd } from '@/lib/date-utils'
-import { CHOOSEABLE_CATEGORIES, INCLUDED_CATEGORIES, CATEGORIES } from '@/lib/menu-helpers'
+import { formatRangeSpanish, formatDateSpanish } from '@/lib/date-utils'
+import { CATEGORIES } from '@/lib/menu-helpers'
 import type { MenuFormData } from '@/lib/menu-helpers'
 
 interface StepReviewProps {
@@ -21,12 +16,6 @@ interface StepReviewProps {
 }
 
 export function StepReview({ data, onSubmit, isSubmitting }: StepReviewProps) {
-  const weekEndDate = getWeekEnd(
-    new Date(data.weekStart + 'T00:00:00'),
-    data.activeDays
-  )
-  const weekEndStr = weekEndDate.toISOString().split('T')[0]
-
   const categoriesWithDishes = CATEGORIES.filter((cat) =>
     data.dishes.some((d) => d.category === cat.value)
   )
@@ -48,22 +37,10 @@ export function StepReview({ data, onSubmit, isSubmitting }: StepReviewProps) {
             <p className="text-xs text-muted-foreground mb-0.5">Fecha</p>
             <p className="text-sm">
               {data.type === 'weekly'
-                ? formatWeekRangeSpanish(data.weekStart, weekEndStr)
-                : formatEventDateSpanish(data.weekStart)}
+                ? formatRangeSpanish(data.weekStart, data.weekEnd)
+                : formatDateSpanish(data.weekStart)}
             </p>
           </div>
-
-          {/* Active days (weekly only) */}
-          {data.type === 'weekly' && (
-            <div>
-              <p className="text-xs text-muted-foreground mb-0.5">
-                Dias activos
-              </p>
-              <p className="text-sm">
-                {formatActiveDaysLabel(data.activeDays)}
-              </p>
-            </div>
-          )}
 
           {/* Event title (event only) */}
           {data.type === 'event' && data.title && (

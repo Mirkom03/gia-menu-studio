@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { Menu, MenuItem } from '@/lib/types'
 import type { MenuFormData } from '@/lib/menu-helpers'
-import { getWeekEnd } from '@/lib/date-utils'
 
 export type MenuWithItemCount = Menu & { menu_items: { count: number }[] }
 
@@ -31,19 +30,14 @@ export async function createMenu(
       ? parseFloat(formData.price.replace(',', '.'))
       : null
 
-    // Calculate weekEnd from activeDays
-    const monday = new Date(formData.weekStart + 'T00:00:00')
-    const weekEndDate = getWeekEnd(monday, formData.activeDays)
-    const weekEnd = weekEndDate.toISOString().split('T')[0]
-
     // Insert menu
     const { data: menu, error: menuError } = await supabase
       .from('menus')
       .insert({
         type: formData.type,
         week_start: formData.weekStart,
-        week_end: weekEnd,
-        active_days: formData.activeDays,
+        week_end: formData.weekEnd,
+        active_days: [],
         title: formData.title || null,
         price,
         status: 'draft' as const,

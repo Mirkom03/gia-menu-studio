@@ -1,5 +1,4 @@
 import type { MenuType, MenuCategory } from '@/lib/types'
-import { getMonday } from '@/lib/date-utils'
 
 export interface DishInput {
   id: string
@@ -13,8 +12,7 @@ export interface DishInput {
 export interface MenuFormData {
   type: MenuType
   weekStart: string
-  weekEnd: string | null
-  activeDays: string[]
+  weekEnd: string
   title: string
   price: string
   dishes: DishInput[]
@@ -41,36 +39,30 @@ export const CATEGORIES: { value: MenuCategory; label: string }[] = [
   { value: 'other', label: 'Otro' },
 ]
 
-export const DEFAULT_ACTIVE_DAYS = [
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-]
+function toISODate(date: Date): string {
+  return date.toISOString().split('T')[0]
+}
 
-function getCurrentWeekMonday(): string {
-  const monday = getMonday(new Date())
-  return monday.toISOString().split('T')[0]
+function getToday(): string {
+  return toISODate(new Date())
+}
+
+function getNextFriday(): string {
+  const d = new Date()
+  const day = d.getDay()
+  // days until friday: if today is Mon(1)->4, Tue(2)->3, etc. If already Fri/Sat/Sun, go to next week's Friday
+  const daysUntilFri = day <= 5 ? (5 - day) || 7 : 5 + (7 - day)
+  d.setDate(d.getDate() + daysUntilFri)
+  return toISODate(d)
 }
 
 export const INITIAL_FORM_DATA: MenuFormData = {
   type: 'weekly',
-  weekStart: getCurrentWeekMonday(),
-  weekEnd: null,
-  activeDays: [...DEFAULT_ACTIVE_DAYS],
+  weekStart: getToday(),
+  weekEnd: getNextFriday(),
   title: '',
   price: '',
   dishes: [],
-}
-
-export function createInitialFormData(): MenuFormData {
-  return {
-    ...INITIAL_FORM_DATA,
-    weekStart: getCurrentWeekMonday(),
-    activeDays: [...DEFAULT_ACTIVE_DAYS],
-    dishes: [],
-  }
 }
 
 export function createInitialDish(category: MenuCategory): DishInput {
@@ -94,6 +86,8 @@ export function validateStep(step: number, data: MenuFormData): boolean {
   switch (step) {
     case 0: {
       if (!data.weekStart) return false
+      if (data.type === 'weekly' && !data.weekEnd) return false
+      if (data.type === 'weekly' && data.weekEnd < data.weekStart) return false
       if (data.type === 'event' && !data.title.trim()) return false
       return true
     }
