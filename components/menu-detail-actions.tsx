@@ -77,8 +77,12 @@ export function MenuDetailActions({
           Regenerar
         </Button>
 
-        {/* Duplicate (disabled -- Phase 5) */}
-        <Button variant="outline" size="sm" disabled title="Disponible pronto">
+        {/* Duplicate */}
+        <Button
+          variant="outline"
+          size="sm"
+          render={<Link href={`/create?duplicate=${menuId}`} />}
+        >
           <Copy data-icon="inline-start" />
           Duplicar
         </Button>

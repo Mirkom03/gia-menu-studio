@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { PlusCircle, CalendarDays, ArrowRight } from 'lucide-react'
+import { PlusCircle, CalendarDays, ArrowRight, Copy } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -8,15 +8,17 @@ import {
   getCurrentWeekMenu,
   getRecentMenus,
   getSignedThumbnailUrls,
+  getMostRecentWeeklyMenu,
 } from '@/lib/actions/menu-actions'
 import { getSignedUrl } from '@/lib/image-utils'
 import { createClient } from '@/lib/supabase/server'
 import { formatRangeSpanish } from '@/lib/date-utils'
 
 export default async function DashboardPage() {
-  const [currentWeekMenu, recentMenus] = await Promise.all([
+  const [currentWeekMenu, recentMenus, mostRecentWeekly] = await Promise.all([
     getCurrentWeekMenu(),
     getRecentMenus(),
+    getMostRecentWeeklyMenu(),
   ])
 
   // Signed URL for the current week menu thumbnail
@@ -83,39 +85,70 @@ export default async function DashboardPage() {
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-3">Menu de esta semana</h2>
         {currentWeekMenu ? (
-          <Link href={`/menu/${currentWeekMenu.id}`} className="block">
-            <Card className="flex flex-col sm:flex-row overflow-hidden transition-shadow hover:shadow-md cursor-pointer">
-              {weekMenuThumbnailUrl && (
-                <img
-                  src={weekMenuThumbnailUrl}
-                  alt={`Menu semanal ${weekDateLabel}`}
-                  className="aspect-[4/3] sm:w-48 object-cover"
-                />
-              )}
-              <CardContent className="flex-1 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="default">Semanal</Badge>
-                  <Badge variant="outline">
-                    {currentWeekMenu.status === 'generated'
-                      ? 'Generado'
-                      : currentWeekMenu.status === 'final'
-                        ? 'Final'
-                        : 'Borrador'}
-                  </Badge>
-                </div>
-                <p className="text-sm font-medium">{weekDateLabel}</p>
-              </CardContent>
-            </Card>
-          </Link>
+          <div className="space-y-3">
+            <Link href={`/menu/${currentWeekMenu.id}`} className="block">
+              <Card className="flex flex-col sm:flex-row overflow-hidden transition-shadow hover:shadow-md cursor-pointer">
+                {weekMenuThumbnailUrl && (
+                  <img
+                    src={weekMenuThumbnailUrl}
+                    alt={`Menu semanal ${weekDateLabel}`}
+                    className="aspect-[4/3] sm:w-48 object-cover"
+                  />
+                )}
+                <CardContent className="flex-1 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="default">Semanal</Badge>
+                    <Badge variant="outline">
+                      {currentWeekMenu.status === 'generated'
+                        ? 'Generado'
+                        : currentWeekMenu.status === 'final'
+                          ? 'Final'
+                          : 'Borrador'}
+                    </Badge>
+                  </div>
+                  <p className="text-sm font-medium">{weekDateLabel}</p>
+                </CardContent>
+              </Card>
+            </Link>
+            {mostRecentWeekly && (
+              <Button
+                variant="outline"
+                size="sm"
+                render={
+                  <Link
+                    href={`/create?duplicate=${mostRecentWeekly.id}`}
+                  />
+                }
+              >
+                <Copy data-icon="inline-start" />
+                Duplicar para la proxima semana
+              </Button>
+            )}
+          </div>
         ) : (
           <Card className="flex flex-col items-center p-6 border-dashed">
             <p className="text-muted-foreground mb-4">
               No hay menu para esta semana
             </p>
-            <Button render={<Link href="/create" />}>
-              <CalendarDays data-icon="inline-start" />
-              Crear Menu del Dia
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button render={<Link href="/create" />}>
+                <CalendarDays data-icon="inline-start" />
+                Crear Menu del Dia
+              </Button>
+              {mostRecentWeekly && (
+                <Button
+                  variant="outline"
+                  render={
+                    <Link
+                      href={`/create?duplicate=${mostRecentWeekly.id}`}
+                    />
+                  }
+                >
+                  <Copy data-icon="inline-start" />
+                  Duplicar para esta semana
+                </Button>
+              )}
+            </div>
           </Card>
         )}
       </section>
