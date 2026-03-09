@@ -2,10 +2,143 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import type { Menu, MenuItem } from '@/lib/types'
+import type { Menu, MenuItem, MenuImage, Language } from '@/lib/types'
 import type { MenuFormData } from '@/lib/menu-helpers'
+import { getSignedUrl } from '@/lib/image-utils'
 
 export type MenuWithItemCount = Menu & { menu_items: { count: number }[] }
+
+export type MenuWithImages = Menu & {
+  menu_items: { count: number }[]
+  menu_images: Pick<MenuImage, 'id' | 'thumbnail_url' | 'language'>[]
+}
+
+export interface FilteredMenusParams {
+  type?: 'weekly' | 'event'
+  search?: string
+  dateFrom?: string
+  dateTo?: string
+  language?: Language
+}
+
+/**
+ * Returns filtered menus with images, ordered newest first.
+ */
+export async function getFilteredMenus(
+  params: FilteredMenusParams
+): Promise<MenuWithImages[]> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+  if (authError || !user) {
+    throw new Error('No autenticado.')
+  }
+
+  // Collect menu IDs to filter by (from search and language)
+  let filterIds: string[] | null = null
+
+  // Language filter: find menus that have images in the specified language
+  if (params.language) {
+    const { data: langImages } = await supabase
+      .from('menu_images')
+      .select('menu_id')
+      .eq('language', params.language)
+
+    const langMenuIds = [...new Set((langImages ?? []).map((r) => r.menu_id))]
+    filterIds = langMenuIds
+  }
+
+  // Search filter: match dish names or event titles
+  if (params.search) {
+    const search = params.search.trim()
+    if (search) {
+      // Search in menu_items by name_es
+      const { data: matchingItems } = await supabase
+        .from('menu_items')
+        .select('menu_id')
+        .ilike('name_es', `%${search}%`)
+
+      const itemMenuIds = [...new Set((matchingItems ?? []).map((r) => r.menu_id))]
+
+      // Search in menus by title (event menus)
+      const { data: matchingMenus } = await supabase
+        .from('menus')
+        .select('id')
+        .ilike('title', `%${search}%`)
+
+      const titleMenuIds = (matchingMenus ?? []).map((r) => r.id)
+
+      const searchIds = [...new Set([...itemMenuIds, ...titleMenuIds])]
+
+      // Intersect with language filter if both active
+      if (filterIds !== null) {
+        filterIds = filterIds.filter((id) => searchIds.includes(id))
+      } else {
+        filterIds = searchIds
+      }
+    }
+  }
+
+  // If filters produced an empty set, return early
+  if (filterIds !== null && filterIds.length === 0) {
+    return []
+  }
+
+  // Build main query
+  let query = supabase
+    .from('menus')
+    .select('*, menu_items(count), menu_images(id, thumbnail_url, language)')
+    .order('created_at', { ascending: false })
+
+  if (params.type) {
+    query = query.eq('type', params.type)
+  }
+  if (params.dateFrom) {
+    query = query.gte('week_start', params.dateFrom)
+  }
+  if (params.dateTo) {
+    query = query.lte('week_start', params.dateTo)
+  }
+  if (filterIds !== null) {
+    query = query.in('id', filterIds)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    throw new Error(`Error al cargar los menus: ${error.message}`)
+  }
+
+  return (data ?? []) as MenuWithImages[]
+}
+
+/**
+ * Returns signed URLs for an array of thumbnail storage paths.
+ */
+export async function getSignedThumbnailUrls(
+  paths: string[]
+): Promise<Record<string, string>> {
+  if (paths.length === 0) return {}
+
+  const supabase = await createClient()
+  const result: Record<string, string> = {}
+
+  await Promise.all(
+    paths.map(async (path) => {
+      try {
+        const url = await getSignedUrl(supabase, 'menu-images', path)
+        result[path] = url
+      } catch {
+        // Skip failed URLs silently
+      }
+    })
+  )
+
+  return result
+}
 
 /**
  * Creates a new menu with its dishes.

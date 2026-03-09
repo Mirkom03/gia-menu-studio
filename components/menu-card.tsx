@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { MenuWithItemCount } from '@/lib/actions/menu-actions'
+import type { MenuWithImages } from '@/lib/actions/menu-actions'
 import { formatRangeSpanish, formatDateSpanish } from '@/lib/date-utils'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -12,7 +12,22 @@ const STATUS_LABELS: Record<string, string> = {
   final: 'Final',
 }
 
-export function MenuCard({ menu }: { menu: MenuWithItemCount }) {
+const DAY_ABBREVIATIONS: Record<string, string> = {
+  monday: 'L',
+  tuesday: 'M',
+  wednesday: 'X',
+  thursday: 'J',
+  friday: 'V',
+  saturday: 'S',
+  sunday: 'D',
+}
+
+interface MenuCardProps {
+  menu: MenuWithImages
+  thumbnailUrl?: string
+}
+
+export function MenuCard({ menu, thumbnailUrl }: MenuCardProps) {
   const isWeekly = menu.type === 'weekly'
   const itemCount =
     menu.menu_items?.[0]?.count ?? 0
@@ -21,9 +36,21 @@ export function MenuCard({ menu }: { menu: MenuWithItemCount }) {
     ? formatRangeSpanish(menu.week_start, menu.week_end ?? menu.week_start)
     : formatDateSpanish(menu.week_start)
 
+  // Get unique languages from menu_images
+  const languages = [
+    ...new Set(menu.menu_images?.map((img) => img.language) ?? []),
+  ]
+
   return (
     <Link href={`/menu/${menu.id}`} className="block">
       <Card className="transition-shadow hover:shadow-md cursor-pointer">
+        {thumbnailUrl && (
+          <img
+            src={thumbnailUrl}
+            alt={isWeekly ? `Menu semanal ${dateLabel}` : (menu.title ?? 'Evento')}
+            className="aspect-[4/3] w-full object-cover"
+          />
+        )}
         <CardHeader>
           <CardTitle className="text-sm font-normal text-muted-foreground">
             {dateLabel}
@@ -38,6 +65,21 @@ export function MenuCard({ menu }: { menu: MenuWithItemCount }) {
           {!isWeekly && menu.title && (
             <p className="font-semibold">{menu.title}</p>
           )}
+
+          {/* Active days pills (weekly menus only) */}
+          {isWeekly && menu.active_days && menu.active_days.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {menu.active_days.map((day) => (
+                <span
+                  key={day}
+                  className="inline-flex items-center px-1.5 py-0.5 text-xs rounded-full bg-muted text-muted-foreground"
+                >
+                  {DAY_ABBREVIATIONS[day] ?? day}
+                </span>
+              ))}
+            </div>
+          )}
+
           <div className="flex items-center gap-3 text-sm">
             {menu.price != null && (
               <span>{menu.price} EUR</span>
@@ -46,9 +88,26 @@ export function MenuCard({ menu }: { menu: MenuWithItemCount }) {
               {itemCount} {itemCount === 1 ? 'plato' : 'platos'}
             </span>
           </div>
-          <Badge variant="outline" className="mt-1">
-            {STATUS_LABELS[menu.status] ?? menu.status}
-          </Badge>
+
+          <div className="flex items-center gap-2 mt-1">
+            <Badge variant="outline">
+              {STATUS_LABELS[menu.status] ?? menu.status}
+            </Badge>
+
+            {/* Language flags */}
+            {languages.length > 0 && (
+              <div className="flex gap-1">
+                {languages.map((lang) => (
+                  <span
+                    key={lang}
+                    className="inline-flex items-center px-1.5 py-0.5 text-xs rounded-full bg-primary/10 text-primary"
+                  >
+                    {lang.toUpperCase()}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </Link>
