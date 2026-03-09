@@ -31,3 +31,9 @@ export const PAPER_SIZES = [
 ] as const
 
 export type PaperSizeId = typeof PAPER_SIZES[number]['id']
+
+export const LANGUAGE_OPTIONS = [
+  { id: 'es' as const, label: 'Espanol', flag: 'ES' },
+  { id: 'en' as const, label: 'English', flag: 'EN' },
+  { id: 'fr' as const, label: 'Francais', flag: 'FR' },
+] as const

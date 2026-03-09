@@ -4,7 +4,15 @@ import { generateMenuImage } from '@/lib/gemini'
 import { buildMenuPrompt } from '@/lib/prompts'
 import { createThumbnail, uploadImage, getSignedUrl } from '@/lib/image-utils'
 import { ASPECT_RATIOS } from '@/lib/constants'
-import { formatRangeSpanish, formatDateSpanish } from '@/lib/date-utils'
+import {
+  formatRangeSpanish,
+  formatDateSpanish,
+  formatRangeEnglish,
+  formatDateEnglish,
+  formatRangeFrench,
+  formatDateFrench,
+} from '@/lib/date-utils'
+import type { Language } from '@/lib/types'
 
 export const maxDuration = 60
 
@@ -15,6 +23,7 @@ interface GenerateBody {
   customStylePrompt?: string
   customWidth?: number
   customHeight?: number
+  language?: Language
 }
 
 // Supported Gemini aspect ratios for finding closest match
@@ -44,6 +53,30 @@ function findClosestGeminiRatio(width: number, height: number): string {
   return closest.ratio
 }
 
+function formatDateRange(
+  menu: { type: string; week_start: string; week_end: string | null },
+  language: Language
+): string {
+  const { type, week_start, week_end } = menu
+
+  if (language === 'en') {
+    return type === 'weekly' && week_end
+      ? formatRangeEnglish(week_start, week_end)
+      : formatDateEnglish(week_start)
+  }
+
+  if (language === 'fr') {
+    return type === 'weekly' && week_end
+      ? formatRangeFrench(week_start, week_end)
+      : formatDateFrench(week_start)
+  }
+
+  // Default: Spanish
+  return type === 'weekly' && week_end
+    ? formatRangeSpanish(week_start, week_end)
+    : formatDateSpanish(week_start)
+}
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
@@ -56,7 +89,15 @@ export async function POST(req: NextRequest) {
     }
 
     const body: GenerateBody = await req.json()
-    const { menu_id, style_id, aspectRatio, customStylePrompt, customWidth, customHeight } = body
+    const {
+      menu_id,
+      style_id,
+      aspectRatio,
+      customStylePrompt,
+      customWidth,
+      customHeight,
+      language = 'es',
+    } = body
 
     if (!menu_id || !style_id || !aspectRatio) {
       return NextResponse.json(
@@ -124,24 +165,25 @@ export async function POST(req: NextRequest) {
       imageHeight = null
     }
 
-    // Build date range string
-    const dateRange =
-      menu.type === 'weekly' && menu.week_end
-        ? formatRangeSpanish(menu.week_start, menu.week_end)
-        : formatDateSpanish(menu.week_start)
+    // Build date range string in the correct language
+    const dateRange = formatDateRange(menu, language)
+
+    // Select correct name field based on language
+    const dishes = (items ?? []).map((i: { category: string; name_es: string; name_en: string | null; name_fr: string | null }) => ({
+      category: i.category,
+      name: (language === 'en' ? i.name_en : language === 'fr' ? i.name_fr : i.name_es) || i.name_es,
+    }))
 
     // Build prompt
     const prompt = buildMenuPrompt({
       stylePrompt,
-      dishes: (items ?? []).map((i: { category: string; name_es: string }) => ({
-        category: i.category,
-        name: i.name_es,
-      })),
+      dishes,
       price: menu.price?.toString() ?? '',
       dateRange,
       aspectRatio: ratioString,
       menuType: menu.type,
       eventTitle: menu.title ?? undefined,
+      language,
     })
 
     // Generate image
@@ -162,7 +204,7 @@ export async function POST(req: NextRequest) {
       .from('menu_images')
       .insert({
         menu_id,
-        language: 'es',
+        language,
         image_url: imagePath,
         thumbnail_url: thumbPath,
         format: 'png',
