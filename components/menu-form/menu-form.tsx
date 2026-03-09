@@ -14,13 +14,16 @@ import type { MenuFormData } from '@/lib/menu-helpers'
 
 const STEPS = ['Tipo y Fecha', 'Platos y Precio', 'Revisar']
 
-export function MenuForm() {
+interface MenuFormProps {
+  initialData?: MenuFormData
+}
+
+export function MenuForm({ initialData }: MenuFormProps) {
   const router = useRouter()
   const [step, setStep] = useState(0)
-  const [formData, setFormData] = useState<MenuFormData>({
-    ...INITIAL_FORM_DATA,
-    dishes: [],
-  })
+  const [formData, setFormData] = useState<MenuFormData>(
+    initialData ?? { ...INITIAL_FORM_DATA, dishes: [] }
+  )
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Detect unsaved changes

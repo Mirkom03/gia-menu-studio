@@ -16,6 +16,7 @@ export interface MenuFormData {
   title: string
   price: string
   dishes: DishInput[]
+  sourceMenuId?: string
 }
 
 // "Primeros" and "Segundos" are the chooseable sections (customer picks 1 from each)

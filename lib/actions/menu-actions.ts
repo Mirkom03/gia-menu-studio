@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { startOfWeek, format as formatDate } from 'date-fns'
+import { startOfWeek, addWeeks, addDays, format as formatDate } from 'date-fns'
 import type { Menu, MenuItem, MenuImage, Language } from '@/lib/types'
 import type { MenuFormData } from '@/lib/menu-helpers'
 import { getSignedUrl } from '@/lib/image-utils'
@@ -176,6 +176,7 @@ export async function createMenu(
         price,
         status: 'draft' as const,
         user_id: user.id,
+        ...(formData.sourceMenuId ? { source_menu_id: formData.sourceMenuId } : {}),
       })
       .select()
       .single()
@@ -412,4 +413,92 @@ export async function getRecentMenus(): Promise<MenuWithImages[]> {
   }
 
   return (data ?? []) as MenuWithImages[]
+}
+
+/**
+ * Fetches a menu by ID and returns it as MenuFormData for duplication.
+ * Dates are advanced to current or next week (Monday-Friday).
+ */
+export async function getMenuForDuplication(
+  menuId: string
+): Promise<MenuFormData> {
+  const { menu, items } = await getMenuById(menuId)
+
+  const currentMonday = startOfWeek(new Date(), { weekStartsOn: 1 })
+
+  if (menu.type === 'event') {
+    // For event menus: use today, no end date
+    return {
+      type: menu.type,
+      weekStart: formatDate(new Date(), 'yyyy-MM-dd'),
+      weekEnd: '',
+      title: menu.title ?? '',
+      price: menu.price?.toString().replace('.', ',') ?? '',
+      sourceMenuId: menuId,
+      dishes: items.map((item) => ({
+        id: crypto.randomUUID(),
+        category: item.category,
+        nameEs: item.name_es,
+        nameEn: item.name_en ?? '',
+        nameFr: item.name_fr ?? '',
+        sortOrder: item.sort_order,
+      })),
+    }
+  }
+
+  // Weekly menu: advance dates
+  const sourceMonday = new Date(menu.week_start + 'T00:00:00')
+  let targetMonday: Date
+  if (sourceMonday >= currentMonday) {
+    targetMonday = addWeeks(currentMonday, 1)
+  } else {
+    targetMonday = currentMonday
+  }
+  const targetFriday = addDays(targetMonday, 4)
+
+  return {
+    type: menu.type,
+    weekStart: formatDate(targetMonday, 'yyyy-MM-dd'),
+    weekEnd: formatDate(targetFriday, 'yyyy-MM-dd'),
+    title: menu.title ?? '',
+    price: menu.price?.toString().replace('.', ',') ?? '',
+    sourceMenuId: menuId,
+    dishes: items.map((item) => ({
+      id: crypto.randomUUID(),
+      category: item.category,
+      nameEs: item.name_es,
+      nameEn: item.name_en ?? '',
+      nameFr: item.name_fr ?? '',
+      sortOrder: item.sort_order,
+    })),
+  }
+}
+
+/**
+ * Returns the most recent weekly menu regardless of week.
+ */
+export async function getMostRecentWeeklyMenu(): Promise<Menu | null> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+  if (authError || !user) {
+    throw new Error('No autenticado.')
+  }
+
+  const { data, error } = await supabase
+    .from('menus')
+    .select('*')
+    .eq('type', 'weekly')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    throw new Error(`Error al obtener menu reciente: ${error.message}`)
+  }
+
+  return data as Menu | null
 }
