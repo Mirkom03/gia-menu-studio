@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { startOfWeek, format as formatDate } from 'date-fns'
 import type { Menu, MenuItem, MenuImage, Language } from '@/lib/types'
 import type { MenuFormData } from '@/lib/menu-helpers'
 import { getSignedUrl } from '@/lib/image-utils'
@@ -362,4 +363,53 @@ export async function getMenuImages(menuId: string): Promise<MenuImage[]> {
   }
 
   return (data ?? []) as MenuImage[]
+}
+
+export type MenuWithImageUrls = Menu & {
+  menu_images: Pick<MenuImage, 'id' | 'thumbnail_url' | 'image_url'>[]
+}
+
+/**
+ * Returns the current week's weekly menu (if any).
+ * Week starts on Monday.
+ */
+export async function getCurrentWeekMenu(): Promise<MenuWithImageUrls | null> {
+  const supabase = await createClient()
+
+  const monday = startOfWeek(new Date(), { weekStartsOn: 1 })
+  const mondayStr = formatDate(monday, 'yyyy-MM-dd')
+
+  const { data, error } = await supabase
+    .from('menus')
+    .select('*, menu_images(id, thumbnail_url, image_url)')
+    .eq('type', 'weekly')
+    .eq('week_start', mondayStr)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    throw new Error(`Error al cargar el menu de la semana: ${error.message}`)
+  }
+
+  return data as MenuWithImageUrls | null
+}
+
+/**
+ * Returns the 5 most recent menus with images and item counts.
+ */
+export async function getRecentMenus(): Promise<MenuWithImages[]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('menus')
+    .select('*, menu_items(count), menu_images(id, thumbnail_url, language)')
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  if (error) {
+    throw new Error(`Error al cargar menus recientes: ${error.message}`)
+  }
+
+  return (data ?? []) as MenuWithImages[]
 }
