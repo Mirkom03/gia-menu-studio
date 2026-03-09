@@ -1,0 +1,27 @@
+-- supabase/migrations/002_seed_styles.sql
+
+INSERT INTO styles (name, description, prompt_template, sort_order) VALUES
+('Clasico Elegante',
+ 'Fondo oscuro, tipografia serif dorada, bordes ornamentales. Estilo clasico de carta de restaurante italiano.',
+ 'Elegant restaurant menu card, dark navy background, gold text, serif font, ornamental border, luxury feel',
+ 1),
+('Mediterraneo Fresco',
+ 'Fondo claro, tonos azul y terracota, estilo costero limpio y luminoso.',
+ 'Light airy restaurant menu, Mediterranean coast style, white and sky blue, terracotta accents, clean layout',
+ 2),
+('Minimal Moderno',
+ 'Fondo blanco, tipografia sans-serif negra, elementos decorativos minimos. Muy legible.',
+ 'Minimalist modern restaurant menu, white background, clean black typography, sans-serif, lots of whitespace',
+ 3),
+('Rustico Italiano',
+ 'Textura de papel envejecido, tipografia estilo manuscrito, ilustraciones de ingredientes.',
+ 'Rustic Italian trattoria menu, aged parchment paper texture, handwritten calligraphy style, ink illustrations of herbs and olive oil',
+ 4),
+('Pizarra',
+ 'Fondo de pizarra negra con texto estilo tiza blanca. Popular en restaurantes.',
+ 'Restaurant chalkboard menu, black slate background, white chalk handwriting, chalk drawings of food items',
+ 5),
+('Personalizado',
+ 'Describe tu estilo y lo creamos para ti.',
+ '',
+ 6);
