@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { generateMenuImage } from '@/lib/gemini'
+import { generateMenuImage, generateMenuImageWithReference } from '@/lib/gemini'
 import { buildMenuPrompt } from '@/lib/prompts'
 import { createThumbnail, uploadImage, getSignedUrl } from '@/lib/image-utils'
 import { ASPECT_RATIOS } from '@/lib/constants'
@@ -24,6 +24,7 @@ interface GenerateBody {
   customWidth?: number
   customHeight?: number
   language?: Language
+  oneoff_reference_base64?: string
 }
 
 // Supported Gemini aspect ratios for finding closest match
@@ -97,6 +98,7 @@ export async function POST(req: NextRequest) {
       customWidth,
       customHeight,
       language = 'es',
+      oneoff_reference_base64,
     } = body
 
     if (!menu_id || !style_id || !aspectRatio) {
@@ -186,8 +188,28 @@ export async function POST(req: NextRequest) {
       language,
     })
 
-    // Generate image
-    const imageBuffer = await generateMenuImage(prompt, ratioString)
+    // Determine reference image: oneoff upload > style's saved reference > none
+    let referenceImage: string | null = null
+    if (oneoff_reference_base64) {
+      referenceImage = oneoff_reference_base64
+    } else if (style.reference_image_url) {
+      try {
+        const { data } = await supabase.storage
+          .from('menu-images')
+          .download(style.reference_image_url)
+        if (data) {
+          const arrayBuffer = await data.arrayBuffer()
+          referenceImage = Buffer.from(arrayBuffer).toString('base64')
+        }
+      } catch {
+        // Fall through to text-only generation
+      }
+    }
+
+    // Generate image (with or without reference)
+    const imageBuffer = referenceImage
+      ? await generateMenuImageWithReference(prompt, referenceImage, ratioString)
+      : await generateMenuImage(prompt, ratioString)
 
     // Upload full image
     const timestamp = Date.now()
@@ -232,7 +254,10 @@ export async function POST(req: NextRequest) {
       .update({ status: 'generated', style_id })
       .eq('id', menu_id)
 
-    return NextResponse.json({ image, signedUrl })
+    // Return base64 for the image editor
+    const imageBase64 = imageBuffer.toString('base64')
+
+    return NextResponse.json({ image, signedUrl, imageBase64 })
   } catch (error) {
     console.error('Error en generacion de imagen:', error)
     return NextResponse.json(

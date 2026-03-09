@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { MenuDetailActions } from '@/components/menu-detail-actions'
+import { MenuImageWithEditor } from '@/components/menu-image-with-editor'
 import { getMenuById, getMenuImages } from '@/lib/actions/menu-actions'
 import { getSignedUrl } from '@/lib/image-utils'
 import { createClient } from '@/lib/supabase/server'
@@ -72,16 +73,16 @@ export default async function MenuDetailPage({
         Volver al historial
       </Button>
 
-      {/* Full image display */}
+      {/* Full image display with editor */}
       {latestImage && signedImageUrl ? (
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-xl shadow-lg">
-            <img
-              src={signedImageUrl}
-              alt={`Imagen del menu: ${menuTitle}`}
-              className="w-full"
-            />
-          </div>
+          <MenuImageWithEditor
+            menuId={id}
+            imagePath={latestImage.image_url}
+            imageId={latestImage.id}
+            signedUrl={signedImageUrl}
+            menuTitle={menuTitle}
+          />
           <MenuDetailActions
             menuId={id}
             imagePath={latestImage.image_url}
