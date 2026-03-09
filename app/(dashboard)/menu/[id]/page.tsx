@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -116,9 +116,15 @@ export default async function MenuDetailPage({
 
           <Separator />
 
-          <p className="text-xs text-muted-foreground italic">
-            Las opciones de imagen estaran disponibles proximamente.
-          </p>
+          <Button
+            variant="default"
+            size="lg"
+            className="w-full"
+            render={<Link href={`/menu/${id}/generate`} />}
+          >
+            <Sparkles data-icon="inline-start" />
+            Generar Imagen
+          </Button>
         </CardContent>
       </Card>
     </div>

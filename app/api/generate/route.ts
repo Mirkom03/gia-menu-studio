@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generateMenuImage } from '@/lib/gemini'
 import { buildMenuPrompt } from '@/lib/prompts'
-import { createThumbnail, uploadImage } from '@/lib/image-utils'
+import { createThumbnail, uploadImage, getSignedUrl } from '@/lib/image-utils'
 import { ASPECT_RATIOS } from '@/lib/constants'
 import { formatRangeSpanish, formatDateSpanish } from '@/lib/date-utils'
 
@@ -181,13 +181,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Create signed URL for immediate display
+    const signedUrl = await getSignedUrl(supabase, 'menu-images', imagePath)
+
     // Update menu status
     await supabase
       .from('menus')
       .update({ status: 'generated', style_id })
       .eq('id', menu_id)
 
-    return NextResponse.json({ image })
+    return NextResponse.json({ image, signedUrl })
   } catch (error) {
     console.error('Error en generacion de imagen:', error)
     return NextResponse.json(
