@@ -5,8 +5,6 @@ import { ImagePlus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 
-const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-
 interface ReferenceImageUploadProps {
   value: string | null // base64 string or null
   onChange: (base64: string | null) => void
@@ -18,16 +16,19 @@ export function ReferenceImageUpload({ value, onChange }: ReferenceImageUploadPr
 
   const processFile = useCallback(
     (file: File) => {
-      if (!ACCEPTED_TYPES.includes(file.type)) {
-        toast.error('Formato no soportado. Usa JPG, PNG o WebP.')
+      if (!file.type.startsWith('image/')) {
+        toast.error('El archivo no es una imagen.')
         return
       }
 
       const reader = new FileReader()
       reader.onload = () => {
         const result = reader.result as string
-        // Strip "data:image/...;base64," prefix to get raw base64
         const base64 = result.split(',')[1]
+        if (!base64) {
+          toast.error('No se pudo procesar la imagen.')
+          return
+        }
         onChange(base64)
       }
       reader.onerror = () => toast.error('Error al leer la imagen.')
@@ -110,7 +111,7 @@ export function ReferenceImageUpload({ value, onChange }: ReferenceImageUploadPr
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/*"
         className="hidden"
         onChange={handleInputChange}
       />
