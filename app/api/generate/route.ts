@@ -266,10 +266,7 @@ export async function POST(req: NextRequest) {
       .update({ status: 'generated', ...(style_id ? { style_id } : {}) })
       .eq('id', menu_id)
 
-    // Return base64 for the image editor
-    const imageBase64 = imageBuffer.toString('base64')
-
-    return NextResponse.json({ image, signedUrl, imageBase64 })
+    return NextResponse.json({ image, signedUrl })
   } catch (error) {
     console.error('Error en generacion de imagen:', error)
     return NextResponse.json(

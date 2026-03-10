@@ -5,34 +5,85 @@ import { ImagePlus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 
+const MAX_DIMENSION = 1500
+
+/**
+ * Resize an image file using canvas so the longest side is at most MAX_DIMENSION.
+ * Returns a base64 string (no data URI prefix).
+ */
+function resizeImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+
+      let { width, height } = img
+
+      // Only resize if larger than limit
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        if (width > height) {
+          height = Math.round(height * (MAX_DIMENSION / width))
+          width = MAX_DIMENSION
+        } else {
+          width = Math.round(width * (MAX_DIMENSION / height))
+          height = MAX_DIMENSION
+        }
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, width, height)
+
+      // JPEG at 0.85 quality keeps size well under Vercel's 4.5MB limit
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+      const base64 = dataUrl.split(',')[1]
+      if (!base64) {
+        reject(new Error('Failed to encode image'))
+        return
+      }
+      resolve(base64)
+    }
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('Failed to load image'))
+    }
+
+    img.src = url
+  })
+}
+
 interface ReferenceImageUploadProps {
-  value: string | null // base64 string or null
+  value: string | null
   onChange: (base64: string | null) => void
 }
 
 export function ReferenceImageUpload({ value, onChange }: ReferenceImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false)
+  const [processing, setProcessing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const processFile = useCallback(
-    (file: File) => {
+    async (file: File) => {
       if (!file.type.startsWith('image/')) {
         toast.error('El archivo no es una imagen.')
         return
       }
 
-      const reader = new FileReader()
-      reader.onload = () => {
-        const result = reader.result as string
-        const base64 = result.split(',')[1]
-        if (!base64) {
-          toast.error('No se pudo procesar la imagen.')
-          return
-        }
+      setProcessing(true)
+      try {
+        const base64 = await resizeImage(file)
         onChange(base64)
+      } catch {
+        toast.error('Error al procesar la imagen.')
+      } finally {
+        setProcessing(false)
       }
-      reader.onerror = () => toast.error('Error al leer la imagen.')
-      reader.readAsDataURL(file)
     },
     [onChange]
   )
@@ -57,7 +108,6 @@ export function ReferenceImageUpload({ value, onChange }: ReferenceImageUploadPr
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) processFile(file)
-    // Reset so the same file can be re-selected
     e.target.value = ''
   }
 
@@ -65,7 +115,7 @@ export function ReferenceImageUpload({ value, onChange }: ReferenceImageUploadPr
     return (
       <div className="relative inline-block rounded-lg overflow-hidden border shadow-sm">
         <img
-          src={`data:image/png;base64,${value}`}
+          src={`data:image/jpeg;base64,${value}`}
           alt="Referencia de estilo"
           className="h-32 w-auto object-cover"
         />
@@ -103,7 +153,7 @@ export function ReferenceImageUpload({ value, onChange }: ReferenceImageUploadPr
     >
       <ImagePlus className="size-6 text-muted-foreground" />
       <p className="text-sm font-medium text-center">
-        Usar imagen como referencia de estilo
+        {processing ? 'Procesando imagen...' : 'Usar imagen como referencia de estilo'}
       </p>
       <p className="text-xs text-muted-foreground text-center max-w-xs">
         Arrastra una imagen aqui o haz clic para subir. La IA usara el estilo visual (colores, layout, tipografia) para generar el menu.

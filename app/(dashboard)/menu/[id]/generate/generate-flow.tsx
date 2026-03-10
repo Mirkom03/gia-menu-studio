@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -34,9 +34,13 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
   const [loadingEn, setLoadingEn] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<MenuImage | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [generatedImageBase64, setGeneratedImageBase64] = useState<string | null>(null)
   const [generatedImageEn, setGeneratedImageEn] = useState<MenuImage | null>(null)
   const [imageUrlEn, setImageUrlEn] = useState<string | null>(null)
+
+  // Editor state
+  const [editing, setEditing] = useState(false)
+  const [editorBase64, setEditorBase64] = useState<string | null>(null)
+  const [loadingEditor, setLoadingEditor] = useState(false)
 
   const isWeekly = menu.type === 'weekly'
   const dateLabel = isWeekly
@@ -58,6 +62,10 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
     if (!canGenerate) return
 
     setLoading(true)
+    // Reset editor on new generation
+    setEditing(false)
+    setEditorBase64(null)
+
     try {
       // Translate first if non-Spanish
       if (selectedLanguage !== 'es') {
@@ -105,8 +113,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
 
       setGeneratedImage(data.image)
       setImageUrl(data.signedUrl)
-      setGeneratedImageBase64(data.imageBase64 ?? null)
-      // Reset EN image on new ES generation
+      // Reset EN image on new generation
       setGeneratedImageEn(null)
       setImageUrlEn(null)
     } catch {
@@ -120,7 +127,6 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
     if (!canGenerate) return
     setLoadingEn(true)
     try {
-      // Translate first
       toast.info('Traduciendo platos al inglés...')
       const translateRes = await fetch('/api/translate', {
         method: 'POST',
@@ -158,6 +164,32 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
       toast.error('Error de conexion')
     } finally {
       setLoadingEn(false)
+    }
+  }
+
+  async function handleStartEditing() {
+    if (editorBase64) {
+      setEditing(true)
+      return
+    }
+    if (!imageUrl) return
+
+    setLoadingEditor(true)
+    try {
+      const res = await fetch(imageUrl)
+      const blob = await res.blob()
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve((reader.result as string).split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
+      setEditorBase64(base64)
+      setEditing(true)
+    } catch {
+      toast.error('Error al cargar imagen para editar')
+    } finally {
+      setLoadingEditor(false)
     }
   }
 
@@ -259,44 +291,70 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
         regenerate={generatedImage !== null}
       />
 
-      {/* Generated image display with editor */}
+      {/* Generated image display */}
       {imageUrl && generatedImage && (
         <section className="space-y-5">
           <Separator />
 
-          {generatedImageBase64 ? (
-            <ImageEditor
-              initialImageBase64={generatedImageBase64}
-              menuId={menu.id}
-              imagePath={generatedImage.image_url}
-              menuTitle={subtitle}
-              onSave={handleSaveEditedImage}
-            />
+          {editing && editorBase64 ? (
+            <div className="space-y-3">
+              <ImageEditor
+                initialImageBase64={editorBase64}
+                menuId={menu.id}
+                imagePath={generatedImage.image_url}
+                menuTitle={subtitle}
+                onSave={handleSaveEditedImage}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setEditing(false)}
+                className="w-full"
+              >
+                Cerrar editor
+              </Button>
+            </div>
           ) : (
-            <div className={generatedImageEn && imageUrlEn ? 'grid grid-cols-1 sm:grid-cols-2 gap-5' : ''}>
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-center text-muted-foreground uppercase tracking-wider">Español</p>
-                <div className="overflow-hidden rounded-xl shadow-lg">
-                  <img
-                    src={imageUrl}
-                    alt="Menu en español"
-                    className="w-full"
-                  />
-                </div>
-              </div>
-              {generatedImageEn && imageUrlEn && (
+            <>
+              <div className={generatedImageEn && imageUrlEn ? 'grid grid-cols-1 sm:grid-cols-2 gap-5' : ''}>
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold text-center text-muted-foreground uppercase tracking-wider">English</p>
+                  {generatedImageEn && imageUrlEn && (
+                    <p className="text-xs font-semibold text-center text-muted-foreground uppercase tracking-wider">Español</p>
+                  )}
                   <div className="overflow-hidden rounded-xl shadow-lg">
                     <img
-                      src={imageUrlEn}
-                      alt="Menu in English"
+                      src={imageUrl}
+                      alt="Menu en español"
                       className="w-full"
                     />
                   </div>
                 </div>
-              )}
-            </div>
+                {generatedImageEn && imageUrlEn && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-center text-muted-foreground uppercase tracking-wider">English</p>
+                    <div className="overflow-hidden rounded-xl shadow-lg">
+                      <img
+                        src={imageUrlEn}
+                        alt="Menu in English"
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Edit button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleStartEditing}
+                disabled={loadingEditor}
+                className="w-full"
+              >
+                <Pencil className="size-3.5 mr-1.5" />
+                {loadingEditor ? 'Cargando...' : 'Modificar imagen'}
+              </Button>
+            </>
           )}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
