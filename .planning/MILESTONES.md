@@ -1,4 +1,13 @@
 # Milestones
+## v1.2 Logo, Styles & Prompt Overhaul (Shipped: 2026-03-10)
+
+**Phases completed:** 2 phases, 3 plans, 0 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
 
 ## v1.0 — Core Menu Generation (Shipped)
 
