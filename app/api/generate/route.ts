@@ -18,7 +18,7 @@ export const maxDuration = 60
 
 interface GenerateBody {
   menu_id: string
-  style_id: string
+  style_id?: string
   aspectRatio: string
   customStylePrompt?: string
   customWidth?: number
@@ -101,9 +101,16 @@ export async function POST(req: NextRequest) {
       oneoff_reference_base64,
     } = body
 
-    if (!menu_id || !style_id || !aspectRatio) {
+    if (!menu_id || !aspectRatio) {
       return NextResponse.json(
-        { error: 'Faltan campos obligatorios: menu_id, style_id, aspectRatio' },
+        { error: 'Faltan campos obligatorios: menu_id, aspectRatio' },
+        { status: 400 }
+      )
+    }
+
+    if (!style_id && !oneoff_reference_base64) {
+      return NextResponse.json(
+        { error: 'Se requiere un estilo o una imagen de referencia' },
         { status: 400 }
       )
     }
@@ -130,22 +137,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Error al cargar platos' }, { status: 500 })
     }
 
-    // Fetch style
-    const { data: style, error: styleError } = await supabase
-      .from('styles')
-      .select('*')
-      .eq('id', style_id)
-      .single()
+    // Fetch style (optional when reference image is provided)
+    let style: { name: string; prompt_template: string; reference_image_url?: string } | null = null
+    if (style_id) {
+      const { data: styleData, error: styleError } = await supabase
+        .from('styles')
+        .select('*')
+        .eq('id', style_id)
+        .single()
 
-    if (styleError || !style) {
-      return NextResponse.json({ error: 'Estilo no encontrado' }, { status: 404 })
+      if (styleError || !styleData) {
+        return NextResponse.json({ error: 'Estilo no encontrado' }, { status: 404 })
+      }
+      style = styleData
     }
 
     // Determine style prompt
-    const stylePrompt =
-      style.name === 'Personalizado'
-        ? customStylePrompt ?? ''
-        : style.prompt_template
+    const stylePrompt = style
+      ? (style.name === 'Personalizado'
+          ? customStylePrompt ?? ''
+          : style.prompt_template)
+      : ''
 
     // Look up aspect ratio
     const arConfig = ASPECT_RATIOS.find((ar) => ar.id === aspectRatio)
@@ -192,7 +204,7 @@ export async function POST(req: NextRequest) {
     let referenceImage: string | null = null
     if (oneoff_reference_base64) {
       referenceImage = oneoff_reference_base64
-    } else if (style.reference_image_url) {
+    } else if (style?.reference_image_url) {
       try {
         const { data } = await supabase.storage
           .from('menu-images')
@@ -251,7 +263,7 @@ export async function POST(req: NextRequest) {
     // Update menu status
     await supabase
       .from('menus')
-      .update({ status: 'generated', style_id })
+      .update({ status: 'generated', ...(style_id ? { style_id } : {}) })
       .eq('id', menu_id)
 
     // Return base64 for the image editor

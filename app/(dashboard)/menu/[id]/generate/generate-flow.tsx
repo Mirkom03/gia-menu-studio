@@ -52,8 +52,10 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
     }
   }
 
+  const canGenerate = !!selectedStyle || !!referenceImage
+
   async function handleGenerate() {
-    if (!selectedStyle) return
+    if (!canGenerate) return
 
     setLoading(true)
     try {
@@ -86,7 +88,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           menu_id: menu.id,
-          style_id: selectedStyle,
+          style_id: selectedStyle || undefined,
           aspectRatio: selectedRatio,
           customStylePrompt: customStylePrompt || undefined,
           language: selectedLanguage,
@@ -115,7 +117,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
   }
 
   async function handleApproveAndGenerateEn() {
-    if (!selectedStyle) return
+    if (!canGenerate) return
     setLoadingEn(true)
     try {
       // Translate first
@@ -137,7 +139,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           menu_id: menu.id,
-          style_id: selectedStyle,
+          style_id: selectedStyle || undefined,
           aspectRatio: selectedRatio,
           customStylePrompt: customStylePrompt || undefined,
           language: 'en',
@@ -253,7 +255,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
       <GenerateButton
         onClick={handleGenerate}
         loading={loading}
-        disabled={!selectedStyle}
+        disabled={!canGenerate}
         regenerate={generatedImage !== null}
       />
 
