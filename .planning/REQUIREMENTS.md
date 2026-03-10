@@ -1,0 +1,22 @@
+# Requirements: v1.2 — Logo, Styles & Prompt Overhaul
+
+## Logo Integration
+
+- **LOGO-01:** Generated menu images always include the GIÀ logo (sent as inline image part to Gemini)
+- **LOGO-02:** Logo positioned top-center by default, ~15% of image width, with prompt instructions for placement
+- **LOGO-03:** Logo original colors preserved (warm beige/gold on transparent) — prompt instructs Gemini not to recolor
+
+## Prompt Engineering
+
+- **PRMT-01:** buildMenuPrompt() restructured with modular sections: [STYLE] → [LAYOUT] → [CONTENT] → [CONSTRAINTS]
+- **PRMT-02:** Explicit negative prompting in every generation (no food photos, no clipart, no extra text, no blurry text, no watermarks)
+- **PRMT-03:** Text hierarchy instructions define 5 layers (restaurant name > section headers > dish names > descriptions > prices) with sizing/weight guidance
+- **PRMT-04:** Aspect ratio and orientation explicitly stated in prompt (not just passed as API parameter)
+- **PRMT-05:** Language-specific instructions enhanced for EN/FR (culinary terminology, accent handling)
+
+## Style Presets
+
+- **STYL-01:** Replace 5 current one-liner presets with 8 research-based archetypes (Classic Trattoria, Elegant Fine Dining, Rustic Mediterranean, Modern Minimalist, Vintage Osteria, Coastal Mediterranean, Luxe Bistro, Contemporary Italian)
+- **STYL-02:** Each style has a multi-paragraph prompt_template with specific colors (hex), typography direction, decorative elements, and mood
+- **STYL-03:** Each style has accurate colors JSONB metadata for gradient preview cards in StyleGallery
+- **STYL-04:** Personalizado style preserved (empty prompt_template, user writes their own)

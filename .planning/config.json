@@ -1,0 +1,7 @@
+{
+  "milestone_version": "v1.2",
+  "milestone_name": "Logo, Styles & Prompt Overhaul",
+  "commit_docs": true,
+  "executor_model": "inherit",
+  "planner_model": "inherit"
+}
