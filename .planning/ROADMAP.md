@@ -10,7 +10,7 @@ v1.2 transforms menu image quality from "AI-generated" to "professionally design
 - Continues from v1.1 (Phase 6). v1.2 starts at Phase 7.
 
 - [x] **Phase 7: Logo Integration** - GIÀ logo always included in every generated menu image via Gemini inline image
-- [ ] **Phase 8: Prompt & Style Overhaul** - Modular prompt structure + 8 research-based style presets replacing current one-liners
+- [x] **Phase 8: Prompt & Style Overhaul** - Modular prompt structure + 8 research-based style presets replacing current one-liners (completed 2026-03-10)
 
 ## Phase Details
 
@@ -51,4 +51,4 @@ Phases execute in numeric order: 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 7. Logo Integration | 1/1 | Complete | 2026-03-10 |
-| 8. Prompt & Style Overhaul | 1/2 | In Progress|  |
+| 8. Prompt & Style Overhaul | 2/2 | Complete   | 2026-03-10 |

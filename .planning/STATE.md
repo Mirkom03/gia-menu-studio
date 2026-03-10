@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 08-01-PLAN.md
-last_updated: "2026-03-10T09:04:30Z"
-last_activity: 2026-03-10 — Completed 08-01-PLAN.md (Prompt Restructuring)
+stopped_at: Completed 08-02-PLAN.md
+last_updated: "2026-03-10T09:14:44Z"
+last_activity: 2026-03-10 — Completed 08-02-PLAN.md (Style Replacement Migration)
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # State
@@ -18,9 +18,9 @@ progress:
 ## Current Position
 
 Phase: 8 of 8 (Prompt and Style Overhaul)
-Plan: 1 of 3 in current phase (COMPLETE)
-Status: Phase 8 in progress, plan 01 complete
-Last activity: 2026-03-10 — Completed 08-01-PLAN.md (Prompt Restructuring)
+Plan: 2 of 3 in current phase (COMPLETE)
+Status: Phase 8 in progress, plan 02 complete
+Last activity: 2026-03-10 — Completed 08-02-PLAN.md (Style Replacement Migration)
 
 ## Project Reference
 
@@ -39,8 +39,9 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 - buildMenuPrompt() in lib/prompts.ts — modular four-section structure: [STYLE DIRECTIVE], [LAYOUT], [CONTENT], [CONSTRAINTS]
 - generateMenuImage() and generateMenuImageWithReference() in lib/gemini.ts — logo inline part added, accept logoBase64 param
 - API route at app/api/generate/route.ts orchestrates: auth → data fetch → logo load → prompt build → Gemini call → storage → response
-- 5 current styles: Clasico Elegante, Mediterraneo Fresco, Minimal Moderno, Rustico Italiano, Pizarra + Personalizado
-- 8 target archetypes from research: Classic Trattoria, Elegant Fine Dining, Rustic Mediterranean, Modern Minimalist, Vintage Osteria, Coastal Mediterranean, Luxe Bistro, Contemporary Italian
+- 5 current styles replaced by 8 archetypes + Personalizado (9 total)
+- Migration 006_replace_styles.sql applied: 8 archetypes with 800-1053 char prompt_templates + colors JSONB
+- Colors JSONB schema: {background, primary, accent, secondary} — drives buildGradient() in StyleGallery
 
 ### Decisions
 
@@ -52,6 +53,7 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 - No DB schema changes needed — prompt_template is TEXT (unlimited), colors is JSONB
 - 8 styles replace 5 (net +3 presets)
 - Personalizado preserved as 9th option
+- Migration numbered 006 (003-005 already existed) — no functional impact
 
 ### Blockers/Concerns
 
@@ -61,5 +63,5 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Completed 08-01-PLAN.md
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
