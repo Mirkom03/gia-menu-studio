@@ -73,5 +73,10 @@ OUTPUT INSTRUCTIONS:
 - The following dish names must appear EXACTLY as written with correct accents and special characters:
 ${input.dishes.map((d) => `  "${d.name}"`).join('\n')}
 - Do NOT add any dishes or text not listed above
-- Do NOT include any watermarks or logos other than the restaurant name${languageInstructions}`
+- The first inline image provided is the GIA restaurant logo — it MUST appear in the generated image.
+- Place the logo at the top center of the menu, centered horizontally, within the top 20% of the image.
+- The logo should occupy approximately 15% of the image width.
+- Preserve the logo's original warm beige/sandy color (approximately #D4B49A) EXACTLY — do not recolor, tint, adjust brightness, or alter the logo in any way.
+- The logo should appear naturally integrated into the header area, above all menu text content.
+- Do NOT include any watermarks, other logos, or extra branding — only the GIA logo provided.${languageInstructions}`
 }
