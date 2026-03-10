@@ -3,9 +3,9 @@
 ## Current Position
 
 Phase: 7 of 8 (Logo Integration)
-Plan: 0 of 1 in current phase
-Status: Roadmap created, ready to plan Phase 7
-Last activity: 2026-03-10 — Roadmap v1.2 created
+Plan: 1 of 1 in current phase (COMPLETE)
+Status: Phase 7 complete, ready for Phase 8
+Last activity: 2026-03-10 — Completed 07-01-PLAN.md (Logo Integration)
 
 ## Project Reference
 
@@ -22,25 +22,27 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 - Current style prompt_templates are single-line descriptions — need multi-paragraph expert prompts
 - Style seed data lives in supabase/migrations/002_seed_styles.sql
 - buildMenuPrompt() in lib/prompts.ts — current template is basic with [stylePrompt] + menu data + output instructions
-- generateMenuImage() and generateMenuImageWithReference() in lib/gemini.ts — need logo inline part added
-- API route at app/api/generate/route.ts orchestrates: auth → data fetch → prompt build → Gemini call → storage → response
+- generateMenuImage() and generateMenuImageWithReference() in lib/gemini.ts — logo inline part added, accept logoBase64 param
+- API route at app/api/generate/route.ts orchestrates: auth → data fetch → logo load → prompt build → Gemini call → storage → response
 - 5 current styles: Clasico Elegante, Mediterraneo Fresco, Minimal Moderno, Rustico Italiano, Pizarra + Personalizado
 - 8 target archetypes from research: Classic Trattoria, Elegant Fine Dining, Rustic Mediterranean, Modern Minimalist, Vintage Osteria, Coastal Mediterranean, Luxe Bistro, Contemporary Italian
 
 ### Decisions
 
 - Logo sent as inline image part (not composited programmatically) — Gemini handles placement
+- Per-request fs.readFileSync for 52KB logo (safe for serverless)
+- Logo instructions in OUTPUT INSTRUCTIONS block: top-center, ~15% width, color preservation (#D4B49A)
 - No DB schema changes needed — prompt_template is TEXT (unlimited), colors is JSONB
 - 8 styles replace 5 (net +3 presets)
 - Personalizado preserved as 9th option
 
 ### Blockers/Concerns
 
-- Gemini may alter logo details (simplify shapes, shift colors) — need empirical validation
+- Gemini may alter logo details (simplify shapes, shift colors) — validated OK in checkpoint
 - Multi-paragraph prompt_templates may hit token limits — test with longest style + largest menu
 
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Roadmap created
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None

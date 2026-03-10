@@ -2,9 +2,9 @@
 
 ## Logo Integration
 
-- **LOGO-01:** Generated menu images always include the GIÀ logo (sent as inline image part to Gemini)
-- **LOGO-02:** Logo positioned top-center by default, ~15% of image width, with prompt instructions for placement
-- **LOGO-03:** Logo original colors preserved (warm beige/gold on transparent) — prompt instructs Gemini not to recolor
+- [x] **LOGO-01:** Generated menu images always include the GIÀ logo (sent as inline image part to Gemini)
+- [x] **LOGO-02:** Logo positioned top-center by default, ~15% of image width, with prompt instructions for placement
+- [x] **LOGO-03:** Logo original colors preserved (warm beige/gold on transparent) — prompt instructs Gemini not to recolor
 
 ## Prompt Engineering
 
