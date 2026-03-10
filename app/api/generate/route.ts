@@ -1,3 +1,5 @@
+import fs from 'fs'
+import path from 'path'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generateMenuImage, generateMenuImageWithReference } from '@/lib/gemini'
@@ -218,10 +220,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Load GIA logo for inline image injection
+    const logoBuffer = fs.readFileSync(path.join(process.cwd(), 'public', 'logo-gia.png'))
+    const logoBase64 = logoBuffer.toString('base64')
+
     // Generate image (with or without reference)
     const imageBuffer = referenceImage
-      ? await generateMenuImageWithReference(prompt, referenceImage, ratioString)
-      : await generateMenuImage(prompt, ratioString)
+      ? await generateMenuImageWithReference(prompt, referenceImage, logoBase64, ratioString)
+      : await generateMenuImage(prompt, logoBase64, ratioString)
 
     // Upload full image
     const timestamp = Date.now()
