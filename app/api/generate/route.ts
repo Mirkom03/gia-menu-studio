@@ -27,6 +27,7 @@ interface GenerateBody {
   customHeight?: number
   language?: Language
   oneoff_reference_base64?: string
+  showLocation?: boolean
 }
 
 // Supported Gemini aspect ratios for finding closest match
@@ -101,6 +102,7 @@ export async function POST(req: NextRequest) {
       customHeight,
       language = 'es',
       oneoff_reference_base64,
+      showLocation = false,
     } = body
 
     if (!menu_id || !aspectRatio) {
@@ -200,6 +202,7 @@ export async function POST(req: NextRequest) {
       menuType: menu.type,
       eventTitle: menu.title ?? undefined,
       language,
+      showLocation,
     })
 
     // Determine reference image: oneoff upload > style's saved reference > none

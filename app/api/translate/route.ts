@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       const langName = langNames[targetLanguage] ?? targetLanguage
       const prompt = `Translate this restaurant dish name from Spanish to ${langName}. Use proper culinary terminology, not literal translation. Return ONLY the translated name, nothing else.\n\nDish: ${text}`
       const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
       })
       const translated = response.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? ''
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     const prompt = `You are translating restaurant menu dish names from a Mediterranean-Italian restaurant in Spain. Translate each Spanish dish name to ${langName}. Use proper culinary terminology, not literal translations. Return ONLY a JSON array of strings, one per dish, in the same order.\n\nDish names:\n${dishList}`
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       contents: prompt,
     })
 

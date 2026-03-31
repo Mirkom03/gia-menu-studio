@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Pencil } from 'lucide-react'
+import { ArrowLeft, MapPin, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -30,6 +30,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
   const [selectedRatio, setSelectedRatio] = useState(defaultPreferences?.defaultAspectRatio ?? 'instagram')
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(defaultLanguage)
   const [referenceImage, setReferenceImage] = useState<string | null>(null)
+  const [showLocation, setShowLocation] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loadingEn, setLoadingEn] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<MenuImage | null>(null)
@@ -101,6 +102,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
           customStylePrompt: customStylePrompt || undefined,
           language: selectedLanguage,
           oneoff_reference_base64: referenceImage || undefined,
+          showLocation,
         }),
       })
 
@@ -150,6 +152,7 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
           customStylePrompt: customStylePrompt || undefined,
           language: 'en',
           oneoff_reference_base64: referenceImage || undefined,
+          showLocation,
         }),
       })
       const data = await res.json()
@@ -279,6 +282,29 @@ export function GenerateFlow({ menu, items, styles, defaultLanguage = 'es', defa
           selected={selectedLanguage}
           onSelect={setSelectedLanguage}
         />
+      </section>
+
+      <Separator />
+
+      {/* Location toggle */}
+      <section className="space-y-3">
+        <h2 className="font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">Opciones</h2>
+        <button
+          type="button"
+          onClick={() => setShowLocation((v) => !v)}
+          className={`flex items-center gap-3 w-full rounded-lg border px-4 py-3 text-sm transition-colors ${
+            showLocation ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted'
+          }`}
+        >
+          <MapPin className={`size-4 shrink-0 ${showLocation ? 'text-primary' : 'text-muted-foreground'}`} />
+          <div className="flex-1 text-left">
+            <p className="font-medium">Mostrar ubicacion</p>
+            <p className="text-xs text-muted-foreground">Alfaz del Pi, Alicante</p>
+          </div>
+          <div className={`h-5 w-9 rounded-full transition-colors ${showLocation ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
+            <div className={`h-4 w-4 mt-0.5 rounded-full bg-white shadow-sm transition-transform ${showLocation ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
+          </div>
+        </button>
       </section>
 
       <Separator />

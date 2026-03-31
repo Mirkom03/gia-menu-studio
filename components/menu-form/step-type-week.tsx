@@ -112,7 +112,7 @@ export function StepTypeWeek({ data, onChange }: StepTypeWeekProps) {
               : 'hover:bg-muted'
           )}
         >
-          Menu del Dia
+          Menú del Mediodía
         </button>
         <button
           type="button"

@@ -104,7 +104,7 @@ export default async function MenuDetailPage({
         <CardHeader>
           <div className="flex items-center justify-between">
             <Badge variant={isWeekly ? 'default' : 'secondary'}>
-              {isWeekly ? 'Menú del Día' : 'Menú de Evento'}
+              {isWeekly ? 'Menú del Mediodía' : 'Menú de Evento'}
             </Badge>
             <Badge variant="outline">
               {STATUS_LABELS[menu.status] ?? menu.status}

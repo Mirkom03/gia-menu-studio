@@ -133,7 +133,7 @@ export default async function DashboardPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Button render={<Link href="/create" />}>
                 <CalendarDays data-icon="inline-start" />
-                Crear Menú del Día
+                Crear Menú del Mediodía
               </Button>
               {mostRecentWeekly && (
                 <Button
@@ -162,7 +162,7 @@ export default async function DashboardPage() {
                 <CalendarDays className="size-5" />
               </div>
               <div>
-                <CardTitle className="text-sm font-semibold font-display">Crear Menú del Día</CardTitle>
+                <CardTitle className="text-sm font-semibold font-display">Crear Menú del Mediodía</CardTitle>
                 <CardDescription className="text-xs mt-0.5">
                   Menú semanal con IA
                 </CardDescription>

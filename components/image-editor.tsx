@@ -197,54 +197,63 @@ export function ImageEditor({
       )}
 
       {/* Edit panel */}
-      <div className="rounded-lg border p-4 space-y-3">
-        <p className="text-sm font-medium">Modificar imagen</p>
+      <div className="rounded-xl border-2 border-primary/20 bg-card p-5 space-y-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-semibold">Modificar imagen</h3>
+          <span className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+            {editCount}/{MAX_EDITS} ediciones
+          </span>
+        </div>
 
         {/* Quick edit pills */}
         {!limitReached && (
-          <div className="flex flex-wrap gap-1.5">
-            {QUICK_EDITS.map((qe) => (
-              <button
-                key={qe.label}
-                disabled={isEditing}
-                onClick={() => handleQuickEdit(qe.instruction)}
-                className="rounded-full border px-3 py-1 text-xs transition-colors hover:bg-muted disabled:opacity-50"
-              >
-                {qe.label}
-              </button>
-            ))}
+          <div>
+            <p className="text-xs font-medium text-muted-foreground mb-2">Ediciones rapidas</p>
+            <div className="flex flex-wrap gap-2">
+              {QUICK_EDITS.map((qe) => (
+                <button
+                  key={qe.label}
+                  disabled={isEditing}
+                  onClick={() => handleQuickEdit(qe.instruction)}
+                  className="rounded-lg border border-border bg-background px-3.5 py-2 text-sm font-medium transition-all hover:bg-primary hover:text-primary-foreground hover:border-primary disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  {qe.label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Text input */}
         {!limitReached ? (
-          <form onSubmit={handleSubmit} className="flex gap-2">
-            <Input
-              ref={inputRef}
-              value={editText}
-              onChange={(e) => setEditText(e.target.value)}
-              placeholder="Ej: Haz el precio mas grande"
-              disabled={isEditing}
-              className="flex-1"
-            />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={isEditing || !editText.trim()}
-            >
-              <Send className="size-4" />
-            </Button>
-          </form>
+          <div>
+            <p className="text-xs font-medium text-muted-foreground mb-2">O escribe tu propia instruccion</p>
+            <form onSubmit={handleSubmit} className="flex gap-2">
+              <Input
+                ref={inputRef}
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                placeholder="Ej: Haz el precio mas grande"
+                disabled={isEditing}
+                className="flex-1 h-11"
+              />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={isEditing || !editText.trim()}
+                className="h-11 w-11 shrink-0"
+              >
+                <Send className="size-4" />
+              </Button>
+            </form>
+          </div>
         ) : (
-          <p className="text-xs text-muted-foreground">
-            Limite de ediciones alcanzado. Puedes Regenerar desde cero o Guardar esta version.
-          </p>
+          <div className="rounded-lg bg-muted/50 p-3 text-center">
+            <p className="text-sm text-muted-foreground">
+              Limite de ediciones alcanzado. Puedes <strong>Regenerar</strong> desde cero o <strong>Guardar</strong> esta version.
+            </p>
+          </div>
         )}
-
-        {/* Edit counter */}
-        <p className="text-xs text-muted-foreground">
-          Ediciones: {editCount}/{MAX_EDITS}
-        </p>
       </div>
 
       {/* Save button */}

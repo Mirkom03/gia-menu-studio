@@ -27,7 +27,7 @@ export function StepReview({ data, onSubmit, isSubmitting }: StepReviewProps) {
           <CardTitle className="flex items-center gap-2">
             Resumen del Menu
             <Badge variant="secondary">
-              {data.type === 'weekly' ? 'Menu del Dia' : 'Menu de Evento'}
+              {data.type === 'weekly' ? 'Menú del Mediodía' : 'Menú de Evento'}
             </Badge>
           </CardTitle>
         </CardHeader>

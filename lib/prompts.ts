@@ -9,18 +9,19 @@ export interface PromptInput {
   menuType: 'weekly' | 'event'
   eventTitle?: string
   language?: Language
+  showLocation?: boolean
 }
 
 const categoryLabelsByLang: Record<string, Record<string, string>> = {
-  es: { starter: 'Primeros', main: 'Segundos', dessert: 'Postre', drink: 'Bebida', other: 'Otro' },
-  en: { starter: 'Starters', main: 'Main Courses', dessert: 'Dessert', drink: 'Beverage', other: 'Other' },
-  fr: { starter: 'Entrees', main: 'Plats', dessert: 'Dessert', drink: 'Boisson', other: 'Autre' },
+  es: { starter: 'Primeros (a elegir)', main: 'Segundos (a elegir)', dessert: 'Postre (incluido)', drink: 'Bebida (incluida)', other: 'Otro' },
+  en: { starter: 'Starters (choose one)', main: 'Main Courses (choose one)', dessert: 'Dessert (included)', drink: 'Beverage (included)', other: 'Other' },
+  fr: { starter: 'Entrees (au choix)', main: 'Plats (au choix)', dessert: 'Dessert (inclus)', drink: 'Boisson (incluse)', other: 'Autre' },
 }
 
 const menuTypeLabelByLang: Record<string, string> = {
-  es: 'Menu del Dia',
-  en: 'Daily Menu',
-  fr: 'Menu du Jour',
+  es: 'Menu del Mediodia',
+  en: 'Lunch Menu',
+  fr: 'Menu du Midi',
 }
 
 const textLangName: Record<string, string> = {
@@ -78,10 +79,10 @@ function buildContentSection(input: PromptInput, labels: Record<string, string>)
     : menuTypeLabelByLang[lang] ?? menuTypeLabelByLang.es
 
   const dishNameList = input.dishes.map((d) => `  "${d.name}"`).join('\n')
+  const locationLine = input.showLocation ? '\nLocation: Alfaz del Pi, Alicante' : ''
 
   return `[CONTENT]
-Restaurant: Gia Restaurante
-Location: Alfaz del Pi, Alicante
+Restaurant: Gia Restaurante${locationLine}
 
 ${menuTypeLabel}
 Valid: ${input.dateRange}
