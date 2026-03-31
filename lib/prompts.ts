@@ -13,9 +13,9 @@ export interface PromptInput {
 }
 
 const categoryLabelsByLang: Record<string, Record<string, string>> = {
-  es: { starter: 'Primeros (a elegir)', main: 'Segundos (a elegir)', dessert: 'Postre (incluido)', drink: 'Bebida (incluida)', other: 'Otro' },
-  en: { starter: 'Starters (choose one)', main: 'Main Courses (choose one)', dessert: 'Dessert (included)', drink: 'Beverage (included)', other: 'Other' },
-  fr: { starter: 'Entrees (au choix)', main: 'Plats (au choix)', dessert: 'Dessert (inclus)', drink: 'Boisson (incluse)', other: 'Autre' },
+  es: { starter: 'Primeros (a elegir)', main: 'Segundos (a elegir)', dessert: 'Postre o Cafe (incluido, a elegir)', drink: 'Bebida (a elegir)', other: 'Otro' },
+  en: { starter: 'Starters (choose one)', main: 'Main Courses (choose one)', dessert: 'Dessert or Coffee (included, choose one)', drink: 'Beverage (choose one)', other: 'Other' },
+  fr: { starter: 'Entrees (au choix)', main: 'Plats (au choix)', dessert: 'Dessert ou Cafe (inclus, au choix)', drink: 'Boisson (au choix)', other: 'Autre' },
 }
 
 const menuTypeLabelByLang: Record<string, string> = {

@@ -19,23 +19,21 @@ export interface MenuFormData {
   sourceMenuId?: string
 }
 
-// "Primeros" and "Segundos" are the chooseable sections (customer picks 1 from each)
-// "Postre" and "Bebida" are included with the menu (not a choice)
+// All sections are chooseable — customer picks one from each
 export const CHOOSEABLE_CATEGORIES: { value: MenuCategory; label: string; helpText: string }[] = [
   { value: 'starter', label: 'Primeros', helpText: 'A elegir' },
   { value: 'main', label: 'Segundos', helpText: 'A elegir' },
+  { value: 'dessert', label: 'Postre o Cafe', helpText: 'Incluido, a elegir' },
+  { value: 'drink', label: 'Bebida', helpText: 'A elegir' },
 ]
 
-export const INCLUDED_CATEGORIES: { value: MenuCategory; label: string }[] = [
-  { value: 'dessert', label: 'Postre' },
-  { value: 'drink', label: 'Bebida' },
-]
+export const INCLUDED_CATEGORIES: { value: MenuCategory; label: string }[] = []
 
 // All categories for display purposes (review, detail pages)
 export const CATEGORIES: { value: MenuCategory; label: string }[] = [
   { value: 'starter', label: 'Primeros' },
   { value: 'main', label: 'Segundos' },
-  { value: 'dessert', label: 'Postre' },
+  { value: 'dessert', label: 'Postre o Cafe' },
   { value: 'drink', label: 'Bebida' },
   { value: 'other', label: 'Otro' },
 ]
