@@ -87,6 +87,8 @@ export default async function MenuDetailPage({
             menuId={id}
             imagePath={latestImage.image_url}
             menuTitle={menuTitle}
+            styleId={menu.style_id}
+            currentLanguage={latestImage.language}
           />
         </div>
       ) : (
