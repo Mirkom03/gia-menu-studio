@@ -68,17 +68,35 @@ function buildContentSection(input: PromptInput, labels: Record<string, string>)
   const dishLines = Object.entries(
     Object.groupBy(input.dishes, (d) => d.category)
   )
-    .map(
-      ([cat, items]) =>
-        `${labels[cat] ?? cat}:\n${items!.map((d) => `  - "${d.name}"`).join('\n')}`
-    )
+    .map(([cat, items]) => {
+      const sectionLabel = labels[cat] ?? cat
+      // Skip listing items that are redundant with the section label
+      // e.g. "Postre o Café" under the "Postre o Cafe (incluido, a elegir)" header
+      const filteredItems = items!.filter((d) => {
+        const normName = d.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim()
+        const normLabel = sectionLabel.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split('(')[0].trim()
+        return normName !== normLabel
+      })
+      if (filteredItems.length === 0) {
+        // Section label alone is enough — no items to list
+        return `${sectionLabel} (included)`
+      }
+      return `${sectionLabel}:\n${filteredItems.map((d) => `  - "${d.name}"`).join('\n')}`
+    })
     .join('\n\n')
 
   const menuTypeLabel = input.menuType === 'event'
     ? `Special Event: ${input.eventTitle}`
     : menuTypeLabelByLang[lang] ?? menuTypeLabelByLang.es
 
-  const dishNameList = input.dishes.map((d) => `  "${d.name}"`).join('\n')
+  // Filter out items redundant with their section label (same as above)
+  const allFilteredDishes = input.dishes.filter((d) => {
+    const sectionLabel = labels[d.category] ?? d.category
+    const normName = d.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim()
+    const normLabel = sectionLabel.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split('(')[0].trim()
+    return normName !== normLabel
+  })
+  const dishNameList = allFilteredDishes.map((d) => `  "${d.name}"`).join('\n')
   const locationLine = input.showLocation ? '\nLocation: Alfaz del Pi, Alicante' : ''
 
   return `[CONTENT]

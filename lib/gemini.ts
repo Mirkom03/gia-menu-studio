@@ -77,3 +77,56 @@ export async function generateMenuImageWithReference(
 
   throw new Error('No se generó imagen. Intenta de nuevo.')
 }
+
+export async function translateMenuImage(
+  prompt: string,
+  sourceImageBase64: string,
+  logoBase64: string,
+  targetLanguage: string,
+  aspectRatio: string = '3:4'
+): Promise<Buffer> {
+  const langName = targetLanguage === 'en' ? 'English' : targetLanguage === 'fr' ? 'French' : 'Spanish'
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3.1-flash-image-preview',
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          { inlineData: { mimeType: 'image/png', data: sourceImageBase64 } },
+          { inlineData: { mimeType: 'image/png', data: logoBase64 } },
+          {
+            text: `You are translating a restaurant menu. The first image is the ORIGINAL menu design that you must replicate EXACTLY. The second image is the restaurant logo.
+
+CRITICAL RULES:
+- The output must be a PIXEL-PERFECT copy of the original menu design
+- ONLY the text content changes — everything else stays IDENTICAL
+- Same background, same colors, same fonts, same font sizes, same spacing, same layout, same decorative elements, same margins, same alignment
+- Do NOT redesign, reinterpret, or "improve" anything — just translate the text
+- The logo must appear in the same position and size as in the original
+- Target language: ${langName}
+
+Replace the text content with the following ${langName} version:\n\n${prompt}`,
+          },
+        ],
+      },
+    ],
+    config: {
+      responseModalities: ['TEXT', 'IMAGE'],
+      imageConfig: {
+        aspectRatio,
+      },
+      thinkingConfig: {
+        thinkingLevel: ThinkingLevel.HIGH,
+      },
+    },
+  })
+
+  for (const part of response.candidates![0].content!.parts!) {
+    if (part.inlineData) {
+      return Buffer.from(part.inlineData.data!, 'base64')
+    }
+  }
+
+  throw new Error('No se generó imagen traducida. Intenta de nuevo.')
+}

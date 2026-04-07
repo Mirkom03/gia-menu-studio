@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { generateMenuImage, generateMenuImageWithReference } from '@/lib/gemini'
+import { generateMenuImage, generateMenuImageWithReference, translateMenuImage } from '@/lib/gemini'
 import { buildMenuPrompt } from '@/lib/prompts'
 import { createThumbnail, uploadImage, getSignedUrl } from '@/lib/image-utils'
 import { ASPECT_RATIOS } from '@/lib/constants'
@@ -227,10 +227,43 @@ export async function POST(req: NextRequest) {
     const logoBuffer = fs.readFileSync(path.join(process.cwd(), 'public', 'logo-gia.png'))
     const logoBase64 = logoBuffer.toString('base64')
 
-    // Generate image (with or without reference)
-    const imageBuffer = referenceImage
-      ? await generateMenuImageWithReference(prompt, referenceImage, logoBase64, ratioString)
-      : await generateMenuImage(prompt, logoBase64, ratioString)
+    // When translating (non-Spanish), try to use the latest Spanish image as source
+    // so the design stays identical and only the text changes
+    let sourceImageBase64: string | null = null
+    if (language !== 'es') {
+      const { data: spanishImages } = await supabase
+        .from('menu_images')
+        .select('image_url')
+        .eq('menu_id', menu_id)
+        .eq('language', 'es')
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (spanishImages && spanishImages.length > 0) {
+        try {
+          const { data: imgData } = await supabase.storage
+            .from('menu-images')
+            .download(spanishImages[0].image_url)
+          if (imgData) {
+            const arrayBuffer = await imgData.arrayBuffer()
+            sourceImageBase64 = Buffer.from(arrayBuffer).toString('base64')
+          }
+        } catch {
+          // Fall through to normal generation
+        }
+      }
+    }
+
+    // Generate image: translation mode > reference style > from scratch
+    let imageBuffer: Buffer
+    if (sourceImageBase64) {
+      // Translation mode: replicate the Spanish design with translated text
+      imageBuffer = await translateMenuImage(prompt, sourceImageBase64, logoBase64, language, ratioString)
+    } else if (referenceImage) {
+      imageBuffer = await generateMenuImageWithReference(prompt, referenceImage, logoBase64, ratioString)
+    } else {
+      imageBuffer = await generateMenuImage(prompt, logoBase64, ratioString)
+    }
 
     // Upload full image
     const timestamp = Date.now()
